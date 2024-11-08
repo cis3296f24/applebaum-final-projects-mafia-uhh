@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 function Game() {
-    const [isHost, setIsHost] = useState(false);
-    const [messages, setMessages] = useState([]);
-    const [role, setRole] = useState(null);
-    const [playerName, setPlayerName] = useState(''); // State to store player name
-    const [isJoined, setIsJoined] = useState(false); // Track if player has joined the game
+    const [isHost, setIsHost] = useState(false);        // uses state to determine if a player is the host (unlocks the start button)
+    const [messages, setMessages] = useState([]);       // uses state to change the message delivered to the player 
+    const [role, setRole] = useState(null);             // uses state to change and store the player's role (default is NULL)
+    const [playerName, setPlayerName] = useState('');   // uses state to change and store player names (default is '')
+    const [isJoined, setIsJoined] = useState(false);    // uses state to determine if a player has joined the game
+    const [showHelp, setShowHelp] = useState(false);    // uses state to toggle the help menu
+    const [rolesList, setRolesList] = useState([]);     // uses state to store the entire roles list
     const ws = useRef(null);
 
     useEffect(() => {
         ws.current = new WebSocket('ws://localhost:4000');
 
-        ws.current.onmessage = (event) => {
+        ws.current.onmessage = (event) => {             // parses the incoming event type
             const data = JSON.parse(event.data);
             
             if (data.type === 'host') {
@@ -22,6 +24,10 @@ function Game() {
             } else if (data.type === 'role') {
                 setRole(data.role);
                 setMessages(prev => [...prev, `You are assigned the role of ${data.role}`]);
+            } else if (data.type === 'rolesList') {
+                setRolesList(data.roles);               // for the entire roles list (not one unit)
+            } else if (data.type === 'toggleHelpOff') { 
+                setShowHelp(false);                     // universal toggle-off for the help menu
             }
         };
 
@@ -33,7 +39,7 @@ function Game() {
     const handleJoinGame = () => {
         if (playerName.trim()) {
             ws.current.send(JSON.stringify({ type: 'join', name: playerName }));
-            setIsJoined(true); // Mark as joined to hide join controls
+            setIsJoined(true);
         }
     };
 
@@ -43,6 +49,10 @@ function Game() {
         }
     };
 
+    const toggleHelp = () => {
+        setShowHelp(!showHelp);
+    };
+    
     // Helper function to get the image source based on the role
     const getRoleImage = () => {
         if (role === 'Mafia') {
@@ -76,6 +86,20 @@ function Game() {
                         <div>
                             <h3>Your Role: {role}</h3>
                             <img src={getRoleImage()} alt={role} style={{ width: '300px', marginTop: '20px' }} />
+                        </div>
+                    )}
+
+                    <button onClick={toggleHelp}>Help</button>
+
+                    {showHelp && (
+                        <div>
+                            <h3>Character Roles</h3>
+                            {rolesList.map((role, index) => (
+                                <div key={index}>
+                                    <h4>{role.name}</h4>
+                                    <p>{role.description}</p>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </>
