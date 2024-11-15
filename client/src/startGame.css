@@ -63,7 +63,7 @@
     box-sizing: border-box;
     text-align: center;
     background-color: #ffffff  ;
-    margin-top: 10px;
+    margin-top: 50px;
     margin-bottom: 3px;
   }
   .roleBox img{
@@ -81,3 +81,39 @@
     padding: 5px 10px;
     font-size: 12px;
   }
+
+  .timer {
+    
+    align-self: center;
+    background-color: #c61d1d ;
+    height:135px;
+    width: 150px;
+    margin-top: 50px;
+    
+    border-radius: 25px;
+  }
+  
+  
+  .timerWrapper {
+    width: 100;
+    height: 10;
+    display: flex;
+    flex-direction: column;
+    
+  
+    
+  }
+
+  .timerNumber {
+    font-size: 100px;
+    color: black;
+  }
+
+  /* example for chaning css styles if on mobile */
+  /*
+   @media (max-width: 500px) {
+    .timer {
+      background-color: pink;
+    }
+  } 
+    */
