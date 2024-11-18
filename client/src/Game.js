@@ -21,6 +21,7 @@ function Game() {
                 if (data.type === 'host') {
                     setIsHost(true);                                                                // changes the player's frontend state to host status
                     setMessages(prev => [...prev, data.message]);
+                    //trigger host options menu here
                 } else if (data.type === 'player' || data.type === 'message') {
                     setMessages(prev => [...prev, data.message]);
                 } else if (data.type === 'role') {
@@ -99,39 +100,56 @@ function Game() {
                 </div>
             ) : (
                 <div className="login">
-                <div className="gameTitle">
-                            <h2>MAFIUHH...</h2>
+                    <div className="gameTitle">
+                        <h2>MAFIUHH...</h2>
                     </div>
-                            <div className="container-login100">
-                                <div className="wrap-login100">
-        
-                                    <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
+                    <div className="container-login100">
+                        <div className="wrap-login100">
 
-                                    <div className="glow">
-                                        {isHost && <button onClick={goToStartGame}>Start Game</button>}
-                                    </div>
+                            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
 
-                                    <div>
-                                        <button onClick={toggleHelp}>Help</button>
-                                    </div>
-                                    {showHelp && (
-                                        <div className ="helpbox">
-                                            <h3>Character Roles</h3>
-                                            {rolesList
-                                                .filter((value, index, self) =>
-                                                    index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
-                                                )
-                                                .map((roleDesc, index) => (
-                                                <div className="helplist" key={index}>
-                                                    <h4>{roleDesc.name}</h4>
-                                                    <p>{roleDesc.description}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="glow">
+                                {isHost && (            //host only elements
+                                    <button onClick={goToStartGame}>Start Game</button>
+
+
+                                )}
                             </div>
+
+                            <div>
+                                <button onClick={toggleHelp}>Help</button>
+                            </div>
+                            {showHelp && (
+                                <div className ="helpbox">
+                                    <h3>Character Roles</h3>
+                                    {rolesList
+                                        .filter((value, index, self) =>
+                                            index === self.findIndex((t) => t.name === value.name)  // Ensures distinct roles by name
+                                        )
+                                        .map((roleDesc, index) => (
+                                        <div className="helplist" key={index}>
+                                            <h4>{roleDesc.name}</h4>
+                                            <p>{roleDesc.description}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
+
+                    
+                    
+                    <div className="container-login100">
+                        <div className="wrap-login100">
+                        
+                        </div>
+                    </div>
+                    
+                    
+
+                </div>
+
+
             )}
         </div>
     );
