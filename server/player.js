@@ -6,6 +6,7 @@ class Player {
       this.hasVoted = false;    // stores whether the player has voted or not (boolean)
       this.targetVote = null;   // stores the target vote of the player (default set to noone)
       this.ability = null;      // stores the role's ability tag [can be used in the future to determine nighttime phase actions]
+      this.team = null;
     }
   
     voteFor(player) {

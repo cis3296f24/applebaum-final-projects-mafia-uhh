@@ -12,6 +12,9 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
+let timer = 10;                                                 // stores the timer number
+let gamePhase = 'DAY';                                          // stores the default game phase
+let timerInterval = null;
 
 app.use(express.static('public'));
 
@@ -67,6 +70,8 @@ wss.on('connection', (ws) => {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
             });
+        } else if (data.type === 'beginTimer') {
+            beginTimer();
         }
     });
 
@@ -78,6 +83,46 @@ wss.on('connection', (ws) => {
         updateCurrentPlayersList();                                                                                     // send updated list to all players after someone disconnects
     });
 });
+
+function beginTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
+    }
+
+    players.forEach(player => { 
+        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));             // sends out the current timer number to all users' frontend
+    });
+
+    timerInterval = setInterval(() => {
+        console.log("Timer: " + timer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
+        timer--;
+
+        if (timer <= 0) {                                                               // checks if the timer is at 0
+            clearInterval(timerInterval);                                               // stops timer if it hits 0
+            doPhaseChange();                                                            // runs phase change function
+        } else {
+            players.forEach(player => { 
+                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));     // sends out the current timer number to all users' frontend
+            });
+        }
+    }, 1000);
+}
+
+function doPhaseChange() {
+    if (gamePhase === 'DAY') {                                                          // swaps the game phase
+        gamePhase = 'NIGHT';
+    } else {
+        gamePhase = 'DAY';
+    }
+
+    timer = 10;                                                                         // resets the timer number
+
+    players.forEach(player => { 
+        player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
+    });
+
+    beginTimer();                                                                       // restarts the timer
+}
 
 function updateCurrentPlayersList() {                                                                                   // sends the updated player list to all 
     const playerNames = players.map(player => player.name);
@@ -187,7 +232,7 @@ function handleVoting(playerName, targetPlayer) {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
 
-            const playerToEliminate = players.find(player => player.name === eliminatedPlayer);       // sets the status of the eliminated player to true
+            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
             playerToEliminate.eliminate()
 
             checkWinConditions();                                                               // check win conditions after player has been eliminated
