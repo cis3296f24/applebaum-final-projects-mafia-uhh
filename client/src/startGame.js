@@ -58,6 +58,8 @@ function StartGame() {
             } else {
               setIsDay(false);
             }
+          } else if (data.type === 'gameOver') {
+            setMessages(prev => [...prev, data.message]);
           }
     }
 
