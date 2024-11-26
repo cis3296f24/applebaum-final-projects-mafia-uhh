@@ -65,13 +65,13 @@
   align-items: center;         /* Center children horizontally */
   justify-content: center;     /* Center children vertically */
   width: 90%;
-  height: 90%;
+  height: 100%;
   max-width: 480px;          /* Optional: limit max width for larger screens */
-  max-height: 480px;            /* Stretch vertically */
+  max-height: 500px;            /* Stretch vertically */
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
-  padding: 40px 55px 33px 55px;
+  padding: 10px 55px 10px 55px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
 }
