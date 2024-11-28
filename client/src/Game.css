@@ -13,7 +13,7 @@
     overflow-y: hidden; /* Ensures overflow is controlled */
     display: flex;
     flex-direction: column; /* Ensures the header and list stack correctly */
-    margin-top: 20px;
+    margin-top: 0px;
     margin-bottom: 20px;
 }
 
