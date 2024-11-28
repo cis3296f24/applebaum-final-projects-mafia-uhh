@@ -14,7 +14,7 @@ function Game() {
   const [currentPlayers, setCurrentPlayers] = useState([]);
   const ws = useWebSocket();                                // Get the WebSocket instance from context
   const navigate = useNavigate();                           // Hook for navigation
-  const [maxPlayers, setMaxPlayers] = useState(15);         // uses state to change and store maxPlayers (default is 15)
+  const [maxPlayers, setMaxPlayers] = useState(6);         // uses state to change and store maxPlayers (default is 15)
   const [numMafia, setNumMafia] = useState(2);              // uses state to change and store numMafia (default is 2)
   const [nightLength, setNightLength] = useState(13);       // uses state to change and store nightLength (default is 13)
 
@@ -73,7 +73,7 @@ function Game() {
   };
     
   const goToStartGame = () => {
-      if (currentPlayers.length <= maxPlayers && numMafia < maxPlayers){
+      if (currentPlayers.length == maxPlayers && numMafia < maxPlayers){
           startGame();
       }
   };
@@ -175,7 +175,7 @@ function Game() {
                       <div className="container-login100">
                           <div className="wrap-login100">
                               <h3>Host Options</h3>
-                              <label htmlFor="name">Enter max players:</label>
+                              <label htmlFor="name">Enter number of players:</label>
                               <input
                                   type="text"
                                   
