@@ -6,11 +6,12 @@
 .players-container {
     width: 300px;
     height: 400px;
+    min-height: 8vh;
     border: 2px solid #333;
     border-radius: 10px;
     padding: 10px;
     background-color: #fff;
-    overflow-y: hidden; /* Ensures overflow is controlled */
+    overflow-y: auto; /* Ensures overflow is controlled */
     display: flex;
     flex-direction: column; /* Ensures the header and list stack correctly */
     margin-top: 10px;
@@ -20,6 +21,7 @@
 .players-container h2 {
     text-align: center;
     margin: 0 0 10px; /* Add margin below the title */
+    
 }
 
 .players-list {

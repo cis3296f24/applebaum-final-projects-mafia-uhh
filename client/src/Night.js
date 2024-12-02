@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                                // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import sound from './Narrations/MafiaCall.mp3'
 import './Night.css';
 
 function Night() {
@@ -26,51 +27,40 @@ function Night() {
 
   const navigate = useNavigate();                                                 // Hook for navigation
 
-  const[spoke, setSpoke] = useState(true);
-
-  useEffect(() => {                                                               // listens for messages from the WebSocket (and update state)
-    if (!ws) {
-      console.log("WebSocket is not initialized");
-      return;
-    } else if (ws) {  
-      if (!voting) {
-        ws.send(JSON.stringify({ type: 'startVote'}));
-      }
-      const handleMessage = (event) => {
-        console.log("event!");
-        const data = JSON.parse(event.data);
-
-        if (data.type === 'startVoting') {
-            console.log("voting!");
-            setVoting(true);                                                                  // turns on voting
-            ws.send(JSON.stringify({ type: 'beginNightTimer', nightLength: nightLength }));   // sends the nightLength value to the backend and to begin the timer
-            setPlayers(data.players);
-            setVotes({});                                                                     // reset vote tally for players
-        } else if (data.type === 'voteResults') {
-            setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
-            setAlivePlayers();
-            setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
-            setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
-            setVotes({});                                                                   // reset vote tally for players
-            navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who is eliminated
-        } else if (data.type === 'voteTie') {
-            setVoting(false);                                                               // turns off voting
-            setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
-            setVotes({});                                                                   // reset vote tally for players
-            navigate('/Eliminated', {state: {dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who tie                        
-        } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
-            navigate('/Dead');
-        } else if (data.type === 'timer') {
-            setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
-            console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
-        } else if (data.type === 'phase') {
-            if (data.phase === 'DAY') {                                                       // looks for the phase tag, and will change or stay on the page based on that
-              setVoting(false);                                                               // turns off voting 
-              navigate('/startGame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
+  useEffect(() => {                                                                   // listens for messages from the WebSocket (and update state)
+      if (!ws) {
+        console.log("WebSocket is not initialized");
+        return;
+      }else if(ws){  
+        const handleMessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'startVoting') {
+                speak(sound);
+                setVoting(true);                                                      // turns on voting
+                ws.send(JSON.stringify({ type: 'beginNightTimer', nightLength: nightLength }));
+                setPlayers(data.players);
+                setVotes({});                                                         // reset vote tally for players
+            } else if (data.type === 'voteResults') {
+                setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]); 
+                setAlivePlayers();                                                    // adds the eliminated player to the array                                              
+                setMessages(prev => [...prev, data.message]);
+                setVotes({});                                                         // reset vote tally for players
+            } else if (data.type === 'voteTie') {                                              
+                setMessages(prev => [...prev, data.message]);                         // reset vote tally for players
+                setVotes({});                                                                              
+            } else if (data.type === 'timer') {
+              setTimeLeft(data.timeLeft);                                             // sets the local timer based on the server timer           
+            } else if (data.type === 'phase') {
+              if (data.phase === 'DAY') {                                             // looks for the phase tag, and will update the IsDay state based on that
+                setVoting(false);  
+                ws.removeEventListener('message', handleMessage);                                                   // turns off voting 
+                navigate('/startGame', { state: { role, playerName, isHost, nightLength, rolesList} });       // navigates to the startGame.js page                                                             
+              } else if (data.phase === 'NIGHT NARRATION'){
+                setNarrating(true);
+              }
+            } else if (data.type === 'gameOver') {
+              setMessages(prev => [...prev, data.message]);
             }
-        } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
-          navigate('/GameOver', { state: {gameOverMessage: data.message}});
-        }
       }
       ws.addEventListener('message', handleMessage)
 
@@ -78,7 +68,7 @@ function Night() {
         ws.removeEventListener('message', handleMessage);
       };
     }
-  }, [ws, navigate, role, playerName, isHost, voting, nightLength]);                        // Re-run the effect if WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, voting, nightLength, rolesList]);                        // Re-run the effect if WebSocket instance changes
 
   useEffect(() => {
     const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
@@ -97,20 +87,13 @@ function Night() {
     setShowHelp(!showHelp);
   };
 
-  const announceMafiaVote = () => {
-    if(!spoke){
-      console.log("Speaking!");
-      const messageText = "Mafia open your eyes to vote.";
-      const utterance = new SpeechSynthesisUtterance(messageText);
-      utterance.pitch = 1;
-      utterance.rate = 1;
-      utterance.volume = 1;
-  
-      // Start speaking the messages
-      window.speechSynthesis.speak(utterance);
-      setSpoke(true);
-    }
-  };
+function speak(sound) {
+  console.log("Mafia announced");
+  var audio = new Audio(sound);
+  audio.play().catch((error) => {
+    console.error('Audio playback failed:', error);
+  });
+ };
 
   return (
       <div>

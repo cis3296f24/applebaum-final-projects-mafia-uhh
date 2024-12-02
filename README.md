@@ -135,6 +135,27 @@ sequenceDiagram
 
 This sequence diagram represents a player who is already in the game and can vote. The user is already has a websocket connection. The current state of the game is immediately after game status swapped from startGame.js to Night.js. The diagram demonstates the various communications between the frontend and backend of the game system through a websocket. At first, the voting is not started, but then the game updates to have voting begin (through various communications between backend and frontend to setup the initialization of voting). Following this, the User will be able to select the name of their target vote for elimination by clicking on their button on the frontend client screen of Night.js. The frontend will communicate their choice to the backend who will process it. The backend then sends the reponse to the voting results from all other users to each individual users frontend. The player has the name of the eliminated player displayed on their screen and finally voting and the timer are reset back to their initial states.
 
+## Use Case 4: Player Toggles Help Button 
+
+```mermaid 
+sequenceDiagram
+    participant U as User
+    participant G as Game Component
+    participant WS as WebSocket
+    participant S as Server
+
+    U->>G: Clicks Help Button
+    G->>G: Toggle `showHelp` State
+
+        G->>S: Request Role Descriptions (optional)
+        S->>G: Send Role Descriptions
+        G->>U: Display Help Box with Role Descriptions
+
+        G->>G: Hide Help Box
+
+    G->>U: Show or Hide Help Box
+```
+
 ## Features
 - localhost hosting for testing
 - pictures for each role (civilian/mafia)

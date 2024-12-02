@@ -34,11 +34,8 @@ function StartGame() {
                 ws.send(JSON.stringify({ type: 'startVote'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
             }
             const handleMessage = (event) => {
-                console.log("event!" + event);
-                const data = JSON.parse(event.data);
-
+              const data = JSON.parse(event.data);
                 if (data.type === 'startVoting') {                                           // this is for the start button
-                    console.log("voting!");
                     setVoting(true);                                                                // turns on voting
                     console.log('--------day length: ' + dayLength);
                     ws.send(JSON.stringify({ type: 'beginDayTimer', dayLength: dayLength}));                             // sends the signal to start the day timer
@@ -47,27 +44,28 @@ function StartGame() {
                 } else if (data.type === 'voteResults') {
                     setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
                     setAlivePlayers();
-                    setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
-                    setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+                    setMessages(prev => [...prev, data.message]); 
                     setVotes({});                                                                   // reset vote tally for players
                     navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who is eliminated
                 } else if (data.type === 'voteTie') {
-                    setVoting(false);                                                               // turns off voting
-                    setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+                    setMessages(prev => [...prev, data.message]);
                     setVotes({});                                                                   // reset vote tally for players
                     navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
                 } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
                     navigate('/Dead');
                 } else if (data.type === 'timer') {
-                    setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
-                    console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging
+                    setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer                              // debugging
                 } else if (data.type === 'phase') {
-                    if (data.phase === 'NIGHT') {                                                   // looks for the phase tag, and will change or stay on the page based on that
-                        setVoting(false);
-                        navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
-                    }
-                } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
-                    navigate('/GameOver', { state: {gameOverMessage: data.message}});
+                  if (data.phase === 'DAY') {                                                           // looks for the phase tag, and will update the IsDay state based on that
+                  } else if (data.phase === 'DAY NARRATION'){
+                    setNarrating(true);                                                                  
+                  } else {
+                    setVoting(false);
+                    ws.removeEventListener('message', handleMessage);
+                    navigate('/Night', { state: {role, playerName, isHost, nightLength, rolesList} });                          // move to night page 
+                  }
+                } else if (data.type === 'gameOver') {
+                    setMessages(prev => [...prev, data.message]);
                 }
             }
             ws.addEventListener('message', handleMessage)
@@ -76,7 +74,7 @@ function StartGame() {
                 ws.removeEventListener('message', handleMessage);
             };
         }
-    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength]);  // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, nightLength, rolesList]);  // Re-run the effect if WebSocket instance changes
 
 
     useEffect(() => {

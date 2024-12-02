@@ -85,19 +85,10 @@ wss.on('connection', (ws) => {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
             });
-            nightTimer = data.nightLength;
-        } else if (data.type === 'newDayTimer') {
-            console.log("received day Timer [" + data.dayLength + "].");                                                  // debugging
-            players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'newDayTimer', dayLength: data.dayLength }));               // sends the new daytime timer to each user
-            });
-            dayTimer = data.dayLength;
         } else if (data.type === 'beginDayTimer') {
-            beginDayTimer();
-            dayTimer = data.dayLength;                                                                                     // day timer number declared here****
+            beginTimer(25); // ISAAC POTENTIAL CHANGE? SO THAT THIS MAYBE WORKS OFF data.dayLength?                         // day timer number declared here****
         } else if (data.type === 'beginNightTimer') {
-            beginNightTimer();
-            nightTimer = data.nightLength;                                                                                   // night timer number declared here***
+            beginTimer(data.nightLength);                                                                                 // night timer number declared here***
         }
     });
 
@@ -110,47 +101,7 @@ wss.on('connection', (ws) => {
     });
 });
 
-function checkPlayerNameValid(playerName, ws) {                                                    // function to check valid player names
-    const currentPlayers = players.map(player => player.name);
-    if (playerName.length > 24) {                                                         // player name must be less than 25 characters
-        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name must be less than 25 characters long, try again."}));
-        return false;                     
-    }
-    if (currentPlayers.includes(playerName)) {                                              // player name must be unique => not in currentPlayers
-        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."}));
-        return false;
-    }
-
-    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     // if name is valid, send to client to set isJoined(true)
-    return true;
-  }
-
-
-  function beginDayTimer() {
-    if (timerInterval) {
-        clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
-    }
-
-    players.forEach(player => { 
-        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));             // sends out the current timer number to all users' frontend
-    });
-
-    timerInterval = setInterval(() => {
-        console.log("Day Timer: " + dayTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
-        dayTimer--;
-
-        if (dayTimer <= 0) {                                                               // checks if the timer is at 0
-            clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
-        } else {
-            players.forEach(player => { 
-                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));     // sends out the current timer number to all users' frontend
-            });
-        }
-    }, 1000);
-}
-
-function beginNightTimer() {
+function beginTimer(timer) {
     if (timerInterval) {
         clearInterval(timerInterval);                                                   // checks if the timer is currently running and stops it if so             
     }
@@ -176,7 +127,14 @@ function beginNightTimer() {
 
 function doPhaseChange() {
     if (gamePhase === 'DAY') {                                                          // swaps the game phase
+        gamePhase = 'DAY NARRATION';
+        beginTimer(10);
+
+    } else if(gamePhase === 'DAY NARRATION') {
         gamePhase = 'NIGHT';
+    } else if(gamePhase === 'NIGHT') {
+        gamePhase = 'NIGHT NARRATION';
+        beginTimer(10);
     } else {
         gamePhase = 'DAY';
     }
@@ -184,7 +142,14 @@ function doPhaseChange() {
     players.forEach(player => { 
         player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
     });
+
+    if(gamePhase === 'NIGHT' || gamePhase === 'DAY'){
+        players.forEach(player => {
+            player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(p => p.name) }));             // sends the voting button signal to each player's frontend
+        });
+    }
 }
+
 
 function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
     players.forEach(player => {
@@ -293,16 +258,17 @@ function handleVoting(playerName, targetPlayer) {
             }
         }
 
-        if (tie) {                                                                              // runs if there is a tie
-            players.forEach(player => {
+        console.log("getting results");
+        if (tie) {              
+            timer=0;
+            doPhaseChange();                                                              // runs if there is a tie
+            players.forEach(player => {                                                      
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'There was a tie. No player is eliminated this round.' }));
             });
-        } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
-            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
-            playerToEliminate.eliminate()
-            playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
-
-            players.forEach(player => {                                                         // sends all players result of vote and message
+        } else if (eliminatedPlayer) {  
+            timer=0;
+            doPhaseChange()                                                                                                      // runs if a player is eliminated
+            players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
 
