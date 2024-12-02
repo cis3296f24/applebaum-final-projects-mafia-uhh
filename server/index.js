@@ -12,8 +12,6 @@ const cors = require('cors');
 app.use(cors());
 
 let players = [];                                               // stores the Player objects (DO NOT MOVE THIS BELOW THIS POSITION OTHERWISE THERE IS A BUG)
-let dayTimer;                                                   // stores the night timer number
-let nightTimer;                                                  // stores the day timer number
 let gamePhase = 'DAY';                                          // stores the default game phase
 let timerInterval = null;
 
@@ -36,14 +34,6 @@ wss.on('connection', (ws) => {
         if (data.type === 'join') {
             playerName = data.name;                             // assigns the name input from the user as their player name
 
-            console.log('Player Name: ' + playerName);
-
-            const isPlayerNameValid = checkPlayerNameValid(playerName, ws);     // check if player name is valid
-
-            if(!isPlayerNameValid) {                                        // if player name invalid, return immediately so this player does not join
-                return;
-            }
-
             const newPlayer = new Player(playerName, null);     // initializes a new player object corresponding to the user
             newPlayer.ws = ws;                                  // assigns the websocket to the player's object
             players.push(newPlayer);                            // adds the player object to the players[]
@@ -61,8 +51,6 @@ wss.on('connection', (ws) => {
             });
         } else if (data.type === 'start') {
             console.log(data.maxPlayers);
-            //kick excess players here
-            kickExcessPlayers(data.maxPlayers);
             if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
                 assignRoles(players, data.maxPlayers, data.numMafia);                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
@@ -81,7 +69,7 @@ wss.on('connection', (ws) => {
                 player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
         } else if (data.type === 'newNightTimer') {
-            console.log("received night Timer [" + data.nightLength + "].");                                                  // debugging
+            console.log("received Timer [" + data.nightLength + "].");                                                  // debugging
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'newNightTimer', nightLength: data.nightLength }));               // sends the new nighttime timer to each user
             });
@@ -107,19 +95,19 @@ function beginTimer(timer) {
     }
 
     players.forEach(player => { 
-        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));             // sends out the current timer number to all users' frontend
+        player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));             // sends out the current timer number to all users' frontend
     });
 
     timerInterval = setInterval(() => {
-        console.log("Night Timer: " + nightTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
-        nightTimer--;
+        console.log("Timer: " + timer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
+        timer--;
 
-        if (nightTimer <= 0) {                                                               // checks if the timer is at 0
+        if (timer <= 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0
             doPhaseChange();                                                            // runs phase change function
         } else {
             players.forEach(player => { 
-                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));     // sends out the current timer number to all users' frontend
+                player.ws.send(JSON.stringify({ type: 'timer', timeLeft: timer }));     // sends out the current timer number to all users' frontend
             });
         }
     }, 1000);
@@ -164,12 +152,12 @@ function checkWinConditions() {                                                 
     if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win
         players.forEach(player => {
             const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                   // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message }));  // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens wins! ' + message }));  // sends game over message to front end
         });
     } else if (mafiaCount >= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins
         players.forEach(player => {
             const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                     // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message }));     // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia wins! ' + message }));     // sends game over message to front end
         });
     }
 }
@@ -181,12 +169,27 @@ function isMafia(role) {                                                        
     return false;
 }
 
-function kickExcessPlayers(maxPlayers) {
-    for (let i = players.length - 1; i >= maxPlayers; i--) { //iterate thorough the players to be removed starting from array's end
-        players[i].ws.close(1000, 'Too many players'); //disconnect the players's websocket
-        players.splice(i, 1); //remove the player from the list
+/*
+function assignRoles(players) {                                                                                         // sorts the players
+    const sortedRoles = roles.slice(0, players.length);                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
+
+    for (let currentIndex = sortedRoles.length - 1; currentIndex > 0; currentIndex--) {
+        const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
+        [sortedRoles[currentIndex], sortedRoles[randomIndex]] = [sortedRoles[randomIndex], sortedRoles[currentIndex]];  // simple sorting method
     }
+
+    players.forEach((player, index) => {
+        const roleName = sortedRoles[index].name;                                                                       // assigns the role given by the sorting method to roleName
+        player.role = roleName;
+        if (isMafia(roleName)) {                                                                                        // assigns teams to players when role is assigned
+            player.team = 'MAFIA';
+        } else {
+            player.team = 'CITIZEN';
+        }
+        player.ws.send(JSON.stringify({ type: 'role', role: roleName }));                                               // sends the roles for each player to the server side
+    });
 }
+*/
 
 function assignRoles(players, maxPlayers, numMafia) {                           // sorts the players
                                                                                 // chooses the number of roles to sort based on the number of players in the join lobby
@@ -271,6 +274,9 @@ function handleVoting(playerName, targetPlayer) {
             players.forEach(player => {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
+
+            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
+            playerToEliminate.eliminate()
 
             checkWinConditions();                                                               // check win conditions after player has been eliminated
         } else {

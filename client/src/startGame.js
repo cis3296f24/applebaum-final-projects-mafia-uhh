@@ -7,7 +7,6 @@ import "./startGame.css"
 function StartGame() {
     const ws = useWebSocket();                                                      // gets the WebSocket instance and connection status
     const [messages, setMessages] = useState([]);
-    const [eliminationMessage, setEliminationMessage] = useState('');               // state to hold elimination message
     const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
@@ -18,10 +17,10 @@ function StartGame() {
     const [timeLeft, setTimeLeft] = useState(10);                                   // starting timer value (defaults as 10 seconds)
     const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
     const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
-    const [isNarrating, setNarrating] = useState(false);
+    const[isNarrating, setNarrating] = useState(false);
 
     const location = useLocation();
-    const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes dayLength and nightLength within the page state (needed for the timer value to transfer) 
+    const { role, playerName, isHost, nightLength, rolesList } = location.state;               // includes nightLength within the page state (needed for the timer value to transfer) 
 
     const navigate = useNavigate();                                                 // Hook for navigation
 
@@ -37,8 +36,7 @@ function StartGame() {
               const data = JSON.parse(event.data);
                 if (data.type === 'startVoting') {                                           // this is for the start button
                     setVoting(true);                                                                // turns on voting
-                    console.log('--------day length: ' + dayLength);
-                    ws.send(JSON.stringify({ type: 'beginDayTimer', dayLength: dayLength}));                             // sends the signal to start the day timer
+                    ws.send(JSON.stringify({ type: 'beginDayTimer' }));                             // sends the signal to start the day timer
                     setPlayers(data.players);
                     setVotes({});                                                                   // reset vote tally for players
                 } else if (data.type === 'voteResults') {
@@ -46,13 +44,9 @@ function StartGame() {
                     setAlivePlayers();
                     setMessages(prev => [...prev, data.message]); 
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who is eliminated
                 } else if (data.type === 'voteTie') {
                     setMessages(prev => [...prev, data.message]);
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
-                } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
-                    navigate('/Dead');
                 } else if (data.type === 'timer') {
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer                              // debugging
                 } else if (data.type === 'phase') {
@@ -98,12 +92,14 @@ function StartGame() {
     <div>
     {!isNarrating && (
       <div className="startGameDay">
-        <div className="gameTitle">
+          <div className="gameTitle">
             <h2>MafiUhh...</h2>
             <div className="help-btn">
-                <button onClick={toggleHelp}>Help</button>
+              <button onClick={toggleHelp}>Help</button>
             </div>
-        </div>
+          </div>
+
+        
 
         {showHelp && (
           <div className="help-modal-overlay" onClick={toggleHelp}>
@@ -128,10 +124,17 @@ function StartGame() {
           </div>
         )}
 
+
+        {isHost && (
+          <div className="user">
+            Host
+          </div>
+        )}
+
         {/* Display the countdown timer */}
         <div className="timerWrapper">
             <div className="timer">
-                <div className="timerNumber">{timeLeft}</div>
+            <div className="timerNumber">{timeLeft}</div>
             </div>
         </div>
 
@@ -228,21 +231,25 @@ function StartGame() {
         )}
         {isNarrating && (
             <div className="startGameNight">
-                <div className="gameTitle">
-                    <h2>MafiUhh...</h2>
+            <div className="gameTitle">
+                <h2>MafiUhh...</h2>
+            </div>
+            {/* Display the elimination messages after voting */}
+            <div>
+            {messages.length > 0 && (
+                <div className="narration">
+                <h3>Game Updates:</h3>
+                <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
                 </div>
-                {/* Display the elimination messages after voting */}
-                <div>
-                    {messages.length > 0 && (
-                        <div className="narration">
-                            <h3>Game Updates:</h3>
-                            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-                        </div>
-                    )}
-                </div>
+            )}
+            </div>
+                                    {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
+                                    {/*<div className="glow">
+                                            {isHost && <button onClick={phaseChange}>Continue</button>}
+                                        </div>*/}
             </div>
         )}
-    </div>
+        </div>
     );
 }
 
