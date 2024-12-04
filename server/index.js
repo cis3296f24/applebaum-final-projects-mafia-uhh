@@ -61,6 +61,8 @@ wss.on('connection', (ws) => {
                 player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' }));     // sends a message to all other players' frontend that a new player has joined // (accomplished by comparing websockets)
             });
         } else if (data.type === 'start') {
+            console.log("starting with night length [" + data.nightLength + "].");    
+            console.log("starting with day length [" + data.dayLength + "].");    
             console.log(data.maxPlayers);
             //kick excess players here
             kickExcessPlayers(data.maxPlayers);
@@ -330,3 +332,5 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = { checkPlayerNameValid, generateRoles };

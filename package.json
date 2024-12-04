@@ -1,10 +1,12 @@
 {
   "devDependencies": {
     "concurrently": "^9.1.0",
+    "jest": "^27.5.1",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "start": "concurrently \"npm start --prefix server\" \"npm start --prefix client\""
+    "start": "concurrently \"npm start --prefix server\" \"npm start --prefix client\"",
+    "test": "concurrently \"npm test --prefix server\" \"npm test --prefix client\""
   },
   "dependencies": {
     "cors": "^2.8.5",

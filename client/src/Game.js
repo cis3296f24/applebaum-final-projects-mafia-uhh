@@ -42,12 +42,17 @@ function Game() {
         } else if (data.type === 'newNightTimer') {
             console.log("Received NEW Night Timer Amount: [" + data.nightLength + "].");  // debugging
             setNightLength(data.nightLength);                                             // receives the new timer value and updates it (required for all non-host users)
+            console.log("CHECK: I CHANGED nightLength to: [" + nightLength + "].");
         } else if (data.type === 'newDayTimer') {
             console.log("Received NEW Day Timer Amount: [" + data.dayLength + "].");  // debugging
             setDayLength(data.dayLength);                                             // receives the new timer value and updates it (required for all non-host users)
+            console.log("CHECK: I CHANGED dayLength to: [" + dayLength + "].");
         } else if (data.type === 'start') {
-            setNightLength(data.nightLength);
-            setDayLength(data.dayLength);                                             // receives the new timer value and updates it (required for all non-host users)             
+            console.log("i received start message, setting night to: [" + nightLength + "].");  // debugging
+            setNightLength(nightLength);
+            console.log("i received start message, setting day to: [" + dayLength + "].");  // debugging
+            setDayLength(dayLength);    
+                                               // receives the new timer value and updates it (required for all non-host users)             
             navigate('/startgame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } }); // sends every user to a new page: start page, passes to the new page: the role, player name, if they are the host, and nighttime timer amount
         } else if (data.type === 'updateCurrentPlayerList') {                           // updated the current player list for display
             setCurrentPlayers(data.currentPlayers);
