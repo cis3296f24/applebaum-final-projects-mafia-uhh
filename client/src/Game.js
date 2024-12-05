@@ -92,9 +92,10 @@ function Game() {
   };
     
   const goToStartGame = () => {
-      if (numMafia < maxPlayers){
-          startGame();
-      }
+    //console.log("STARTGAME PARAMETERS: " + currentPlayers.length + "].");
+    if (numMafia < maxPlayers && maxPlayers == currentPlayers.length){
+        startGame();
+    }
   };
 
   return (
