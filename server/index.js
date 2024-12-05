@@ -78,9 +78,13 @@ wss.on('connection', (ws) => {
         } else if (data.type === 'vote') {
             handleVoting(playerName, data.playerName);                                                                  // when the vote message is received it runs the voting function
         } else if (data.type === 'startVote') {
-            alivePlayers = players.filter(player => !player.eliminated);                                                                         // listens for the signal to begin the voting phase
+            alivePlayers = players.filter(player => !player.eliminated);
+            gamePhase = data.gamePhase;
             players.forEach(player => {
-                player.ws.send(JSON.stringify({ type: 'startVoting', players: alivePlayers.map(player => player.name) }));   // sends the voting button signal to each player's frontend
+                player.ws.send(JSON.stringify({ type: 'sync'}));   // sync
+            });                                                                         // listens for the signal to begin the voting phase
+            players.forEach(player => {
+                player.ws.send(JSON.stringify({ type: 'startVoting', players: players.map(player => player.name), alivePlayers: alivePlayers.map(player => player.name) }));   // sends the voting button signal to each player's frontend
             });
         } else if (data.type === 'newNightTimer') {
             console.log("received night Timer [" + data.nightLength + "].");                                                  // debugging
@@ -141,9 +145,8 @@ function checkPlayerNameValid(playerName, ws) {                                 
         console.log("Day Timer: " + dayTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
         dayTimer--;
 
-        if (dayTimer <= 0) {                                                               // checks if the timer is at 0
-            clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
+        if (dayTimer < 0) {                                                               // checks if the timer is at 0
+            clearInterval(timerInterval);                                               // stops timer if it hits 0                                                        
         } else {
             players.forEach(player => { 
                 player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));     // sends out the current timer number to all users' frontend
@@ -165,9 +168,8 @@ function beginNightTimer() {
         console.log("Night Timer: " + nightTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
         nightTimer--;
 
-        if (nightTimer <= 0) {                                                               // checks if the timer is at 0
+        if (nightTimer < 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
         } else {
             players.forEach(player => { 
                 player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));     // sends out the current timer number to all users' frontend
@@ -198,17 +200,22 @@ function checkWinConditions() {                                                 
     const mafiaCount = players.filter(player => player.team === "MAFIA" && !player.eliminated).length;              // counts mafia that are still alive
     const citizenCount = players.filter(player => player.team === "CITIZEN" && !player.eliminated).length;          // counts citizens that are still alive
 
-    if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win
+    if (mafiaCount === 0) {  
+        clearInterval(timerInterval);                                                                                       // if there are no mafia left, citizens win
         players.forEach(player => {
             const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                   // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message }));  // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message, winner: 'C'}));  // sends game over message to front end
         });
-    } else if (mafiaCount >= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins
+        return true;
+    } else if (mafiaCount >= citizenCount ) {  
+        clearInterval(timerInterval);                                                                     // if mafia equal or outnumber citizens, mafia wins
         players.forEach(player => {
             const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                     // sets a message for who wins and loses, different depending on your team
-            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message }));     // sends game over message to front end
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message, winner: 'M' }));     // sends game over message to front end
         });
+        return true;
     }
+    return false;
 }
 
 function isMafia(role) {                                                                                            // function to check if a role is on the Mafia team, can be updated with added roles.
@@ -265,15 +272,25 @@ function handleVoting(playerName, targetPlayer) {
     }
 
     votingPlayer.voteFor(targetPlayer);                                         // updates the voting player' object to signify they have voted, and they have voted for target player               
+    
+    let votingPlayers;
 
-    const alivePlayers = players.filter(player => !player.eliminated);          // filters out the dead players and assigns the remaining to alivePlayers
-    const votedPlayers = alivePlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
+    if(gamePhase === 'DAY'){
+        votingPlayers = alivePlayers.map(player => player);          // filters out the dead players and assigns the remaining to alivePlayers
+    } else{
+        votingPlayers = alivePlayers.filter(player => (player.role !== 'Citizen'));
+    }  
 
-    if (votedPlayers.length === alivePlayers.length) {   
+    const votedPlayers = votingPlayers.filter(player => player.hasVoted);        // of the alive players, it filters out the players that have voted and assigns them into votedPLayers
+
+    console.log(votedPlayers.length);
+    console.log(votingPlayers.length);
+
+    if (votedPlayers.length === votingPlayers.length) {   
         console.log("hi");                       // checks if the number of players who voted matches the number of alive players
         const voteCounts = {};                                                  // stores the vote tally for each player
 
-        alivePlayers.forEach(player => {
+        votingPlayers.forEach(player => {
             const votedFor = player.targetVote;
             voteCounts[votedFor] = (voteCounts[votedFor] || 0) + 1;         // adds a vote tally to the target player if there is a vote for them, otherwise it defaults to zero
         });
@@ -309,15 +326,20 @@ function handleVoting(playerName, targetPlayer) {
                 player.ws.send(JSON.stringify({ type: 'voteTie', message: 'No one has been eliminated this round.' }));
             });
         } else if (eliminatedPlayer) {                                                          // runs if a player is eliminated
-            const playerToEliminate = players.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
-            playerToEliminate.eliminate()
-            playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
+            const playerToEliminate = alivePlayers.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
+            playerToEliminate.eliminate();
 
-            players.forEach(player => {                                                         // sends all players result of vote and message
-                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
-            });
+            let over = checkWinConditions(); // check win conditions after player has been eliminated
 
-            checkWinConditions();                                                               // check win conditions after player has been eliminated
+
+            if(!over){
+                playerToEliminate.ws.send(JSON.stringify({ type: 'dead'}));                         // send dead data type to player to be sent to dead screen *this must be on the top as to not navigate to the Eliminated screen before
+
+                players.forEach(player => {                                                         // sends all players result of vote and message
+                    player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
+                });
+            }
+                                                              
          } else {
             console.error('[Error] No valid player eliminated.');
         }

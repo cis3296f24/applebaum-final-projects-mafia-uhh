@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                                  // imports the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Tick from './Sounds/Tick.mp3'
 import "./startGame.css"
 
 function StartGame() {
     const ws = useWebSocket();                                                      // gets the WebSocket instance and connection status
-    const [messages, setMessages] = useState([]);
-    const [eliminationMessage, setEliminationMessage] = useState('');               // state to hold elimination message
     const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
     const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
     const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
@@ -18,7 +17,7 @@ function StartGame() {
     const [timeLeft, setTimeLeft] = useState(10);                                   // starting timer value (defaults as 10 seconds)
     const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
     const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
-    const [isNarrating, setNarrating] = useState(false);
+
     const [voted, setVoted] = useState(true);
 
     const location = useLocation();
@@ -32,52 +31,53 @@ function StartGame() {
         return;
         } else if (ws) {
             if (!voting) {
-                ws.send(JSON.stringify({ type: 'startVote'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
+                ws.send(JSON.stringify({ type: 'startVote', gamePhase: 'DAY'}));                      // immediately after the start button is clicked, this sends the 'startVote' tag to the backend to activate the voting phase
             }
             const handleMessage = (event) => {
-                console.log("event!" + event);
                 const data = JSON.parse(event.data);
 
-                if (data.type === 'startVoting') {                                           // this is for the start button
+                if (data.type === 'startVoting') {  
+                    setAlivePlayers(data.alivePlayers);
+                    const newEliminatedPlayers = players.filter(player => !alivePlayers.includes(player));
+                    setEliminatedPlayers(newEliminatedPlayers);
+                    console.log(playerName);
                     console.log(role);
-                    console.log("voting!");
-                    setVoting(true); 
-                    setVoted(false);                                                               // turns on voting
-                    console.log('--------day length: ' + dayLength);
+                    setVoting(true);                                         // this is for the start button
+                    if(alivePlayers.includes(playerName)){
+                        setVoted(false); 
+                      }                                                                  // turns on voting
                     ws.send(JSON.stringify({ type: 'beginDayTimer', dayLength: dayLength}));                             // sends the signal to start the day timer
                     setPlayers(data.players);
                     setVotes({});                                                                   // reset vote tally for players
                 } else if (data.type === 'voteResults') {
                     setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
-                    setAlivePlayers();
-                    setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
-                    setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+                    setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                                                                       // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who is eliminated
+                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY", elimination: true}});           // send players to Eliminated screen to see message of who is eliminated
                 } else if (data.type === 'voteTie') {
-                    setVoting(false);                                                               // turns off voting
-                    setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+                    setVoting(false);                                                               // turns off voting                                           // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
                     setVotes({});                                                                   // reset vote tally for players
-                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY"}});           // send players to Eliminated screen to see message of who tie
+                    navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "DAY", elimination: false}});           // send players to Eliminated screen to see message of who tie
                 } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
                     navigate('/Dead');
                 } else if (data.type === 'timer') {
-                    if(data.timeLeft === 1){
-                        console.log(voted);
+                    if(data.timeLeft === 0){
                         if(!voted){ //checks if didnt vote then sends empty vote
                             console.log("voting for no one!")
                             ws.send(JSON.stringify({ type: 'vote', playerName: null}));
                         }   
+                    } else if (data.timeLeft > 0){
+                        speak(Tick, 0.4);
                     }
                     setTimeLeft(data.timeLeft);                                                     // sets the local timer based on the server timer
-                    console.log("RECEIVED TIMER: " + data.timeLeft);                                // debugging
-                } else if (data.type === 'phase') {
-                    if (data.phase === 'NIGHT') {                                                // looks for the phase tag, and will change or stay on the page based on that
-                        setVoting(false);
-                        navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
-                    }
-                } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
-                    navigate('/GameOver', { state: {gameOverMessage: data.message}});
+                //} else if (data.type === 'phase') {
+                   // if (data.phase === 'NIGHT') {                                                // looks for the phase tag, and will change or stay on the page based on that
+                     //   setVoting(false);
+                       // navigate('/Night', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });    // move to night page 
+                   // }
+                } else if (data.type === 'gameOver') {   
+                    console.log(data.winner);                                           // when gameOver data type is received, send player to game over screen
+                    navigate('/GameOver', { state: {gameOverMessage: data.message, winner: data.winner}});
                 }
             }
             ws.addEventListener('message', handleMessage)
@@ -86,13 +86,8 @@ function StartGame() {
                 ws.removeEventListener('message', handleMessage);
             };
         }
-    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength, voted]);  // Re-run the effect if WebSocket instance changes
+    }, [ws, navigate, role, playerName, isHost, eliminatedPlayers, players, voting, dayLength, nightLength, voted, alivePlayers, rolesList]);  // Re-run the effect if WebSocket instance changes
 
-
-    useEffect(() => {
-        const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
-        setAlivePlayers(newAlivePlayers);
-    }, [players, eliminatedPlayers]);
 
     const voteForPlayer = (playerName) => {
         if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;        // checks to see if a player already voted or dead; prevents a player voting more than once
@@ -108,13 +103,20 @@ function StartGame() {
     setShowHelp(!showHelp);
   };
 
+  function speak(sound, vol) {
+    var audio = new Audio(sound);
+    audio.volume = vol;  // Set the volume level (0.0 to 1.0)
+    audio.play().catch((error) => {
+      console.error('Audio playback failed:', error);
+    });
+   };
+
   useEffect(() => {
     console.log('Updated voted state:', voted);  // This will run whenever `voted` changes
   }, [voted]);
 
   return (
     <div>
-    {!isNarrating && (
       <div className="startGameDay">
         <div className="gameTitle">
             <h2>MafiUhh...</h2>
@@ -242,24 +244,6 @@ function StartGame() {
             </div>
         )}
         </div>
-        
-        )}
-        {isNarrating && (
-            <div className="startGameNight">
-                <div className="gameTitle">
-                    <h2>MafiUhh...</h2>
-                </div>
-                {/* Display the elimination messages after voting */}
-                <div>
-                    {messages.length > 0 && (
-                        <div className="narration">
-                            <h3>Game Updates:</h3>
-                            <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        )}
     </div>
     );
 }
