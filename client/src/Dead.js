@@ -13,7 +13,7 @@ function Dead() {
             const data = JSON.parse(event.data);
 
             if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
-            navigate('/GameOver', { state: {gameOverMessage: data.message}});
+            navigate('/GameOver', { state: {gameOverMessage: data.message, winner: data.winner}});
             }
         }
         ws.addEventListener('message', handleMessage)
