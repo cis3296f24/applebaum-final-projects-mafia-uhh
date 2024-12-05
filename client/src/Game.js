@@ -112,6 +112,7 @@ function Game() {
                               value={playerName}
                               onChange={(e) => setPlayerName(e.target.value)}
                           />
+                          {invalidPlayerNameMessage && <p className="invalidPlayerNameMessage">{invalidPlayerNameMessage}</p>}
                           <div className="glow">
                               <button className="lgn-btn" onClick={handleJoinGame}>
                                   Join Game
