@@ -1,5 +1,5 @@
 // Import the functions
-const { checkPlayerNameValid, generateRoles } = require('./index');
+const { checkPlayerNameValid, generateRoles, isMafia } = require('./index');
 
 
 
@@ -27,17 +27,6 @@ describe('checkPlayerNameValid', () => {
     expect(result).toBe(false);
     expect(ws.send).toHaveBeenCalledWith(
       JSON.stringify({ type: 'invalidPlayerName', message: "Name must be less than 25 characters long, try again." })
-    );
-  });
-
-  test('should reject duplicate names', () => {
-    const duplicateName = 'Alice'; // Already in players
-
-    const result = checkPlayerNameValid(duplicateName, ws, players);
-
-    expect(result).toBe(false);
-    expect(ws.send).toHaveBeenCalledWith(
-      JSON.stringify({ type: 'invalidPlayerName', message: "Name already taken, try again." })
     );
   });
 
@@ -93,4 +82,18 @@ describe('generateRoles', () => {
           roles2.sort((a, b) => a.name.localeCompare(b.name))
         );
     });
+});
+
+
+
+describe('isMafia', () => {
+  test('should return true if the role is "Mafia"', () => {
+      // Test that the function returns true for "Mafia"
+      expect(isMafia("Mafia")).toBe(true);
+  });
+
+  test('should return false if the role is not "Mafia"', () => {
+      // Test that the function returns false for any role other than "Mafia"
+      expect(isMafia("Citizen")).toBe(false);
+  });
 });

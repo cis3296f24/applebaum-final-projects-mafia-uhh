@@ -333,4 +333,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { checkPlayerNameValid, generateRoles };
+module.exports = { checkPlayerNameValid, generateRoles, isMafia };
