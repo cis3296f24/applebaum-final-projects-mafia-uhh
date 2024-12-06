@@ -161,27 +161,32 @@ function StartGame() {
 
         {/* Voting Section */}
         {voting && !eliminatedPlayers.includes(playerName) &&(
-        <div>
-            <h3>Vote to Eliminate a Player</h3>
-            <div>
-                {/* Buttons for voting */}
-                {alivePlayers.map((player) => (
-                    <div key={player}>
-                        <label>
-                            <input
-                                type="radio"
-                                name="vote"
-                                value={player}
-                                onChange={() => setFinalVote(player)}
-                                disabled={eliminatedPlayers.includes(player)} // Prevent voting for eliminated players
-                            />
-                            {player}
-                        </label>
-                    </div>
-                ))}
+        <div className="voting-container">
+            <div className="voting-header">
+                Vote to Eliminate a Player
+            </div>
+            <div className="voting-players-container">
+                <div className="voting-player-list">
+                    {/* Buttons for voting */}
+                    {alivePlayers.map((player) => (
+                        <div key={player} className="voting-player-name">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="vote"
+                                    value={player}
+                                    onChange={() => setFinalVote(player)}
+                                    disabled={eliminatedPlayers.includes(player)} // Prevent voting for eliminated players
+                                />
+                                {player}
+                            </label>
+                        </div>
+                    ))}
+                </div>
             </div>
             {/* Submit Vote Button */}
-            <button
+
+            <button className="submit-btn"
                 onClick={() => {
                     if (finalVote) voteForPlayer(finalVote);
                 }}

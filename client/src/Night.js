@@ -162,34 +162,39 @@ function Night() {
           
         {/* Voting Section */}
         {voting && !eliminatedPlayers.includes(playerName) && (role !== 'Citizen') && (
-        <div>
-            <h3>Vote to Eliminate a Player</h3>
-            <div>
-                {/* Player Buttons for voting */}
-                {alivePlayers.map((player) => (
-                    <div key={player}>
-                        <label>
-                            <input
-                                type="radio"                                  // circle button design for now
-                                name="vote"
-                                value={player}
-                                onChange={() => setFinalVote(player)}         // changes the state of the final vote for the user
-                                disabled={eliminatedPlayers.includes(player)} // eliminated players can't vote
-                            />
-                            {player}
-                        </label>
-                    </div>
-                ))}
-            </div>
-            {/* Submit Vote Button */}
-            <button
-                onClick={() => {
-                    if (finalVote) voteForPlayer(finalVote);                  // submits the player's vote through the voteForPlayer function
-                }}
-                disabled={!finalVote}                                         // button is disabled until a player is selected
-            >
-                Submit Vote
-            </button>
+        <div className="voting-container">
+          <div className="voting-header">
+              Vote to Eliminate a Player
+          </div>
+          <div className="voting-players-container">
+              <div className="voting-player-list">
+                  {/* Buttons for voting */}
+                  {alivePlayers.map((player) => (
+                      <div key={player} className="voting-player-name">
+                          <label>
+                              <input
+                                  type="radio"
+                                  name="vote"
+                                  value={player}
+                                  onChange={() => setFinalVote(player)}
+                                  disabled={eliminatedPlayers.includes(player)} // Prevent voting for eliminated players
+                              />
+                              {player}
+                          </label>
+                      </div>
+                  ))}
+              </div>
+        </div>
+        {/* Submit Vote Button */}
+
+        <button className="submit-btn"
+            onClick={() => {
+                if (finalVote) voteForPlayer(finalVote);
+            }}
+            disabled={!finalVote} // Disable button until a player is selected
+        >
+            Submit Vote
+        </button>
         </div>
         )}
 
