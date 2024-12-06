@@ -49,7 +49,7 @@ wss.on('connection', (ws) => {
             newPlayer.ws = ws;                                  // assigns the websocket to the player's object
             players.push(newPlayer);                            // adds the player object to the players[]
 
-            updateCurrentPlayersList();                                                                                 // send updated list to all players after someone joins
+            updateCurrentPlayersList(players);                                                                                 // send updated list to all players after someone joins
 
             if (players.length === 1) {
                 ws.send(JSON.stringify({ type: 'host', message: 'You are the host' }));                                 // sends a message (through the websocket) to the first player that they are the host
@@ -110,7 +110,7 @@ wss.on('connection', (ws) => {
         players.forEach(player => {
             player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has left the game.' }));           // sends this message to everyone's frontend
         });
-        updateCurrentPlayersList();                                                                                     // send updated list to all players after someone disconnects
+        updateCurrentPlayersList(players);                                                                                     // send updated list to all players after someone disconnects
     });
 });
 
@@ -149,7 +149,7 @@ wss.on('connection', (ws) => {
 
         if (dayTimer <= 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
+            doPhaseChange(players, gamePhase);                                                            // runs phase change function
         } else {
             players.forEach(player => { 
                 player.ws.send(JSON.stringify({ type: 'timer', timeLeft: dayTimer }));     // sends out the current timer number to all users' frontend
@@ -173,7 +173,7 @@ function beginNightTimer() {
 
         if (nightTimer <= 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0
-            doPhaseChange();                                                            // runs phase change function
+            doPhaseChange(players, gamePhase);                                                            // runs phase change function
         } else {
             players.forEach(player => { 
                 player.ws.send(JSON.stringify({ type: 'timer', timeLeft: nightTimer }));     // sends out the current timer number to all users' frontend
@@ -182,7 +182,7 @@ function beginNightTimer() {
     }, 1000);
 }
 
-function doPhaseChange() {
+function doPhaseChange(players, gamePhase) {
     if (gamePhase === 'DAY') {                                                          // swaps the game phase
         gamePhase = 'NIGHT';
     } else {
@@ -192,9 +192,11 @@ function doPhaseChange() {
     players.forEach(player => { 
         player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
     });
+
+    return gamePhase;
 }
 
-function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
+function updateCurrentPlayersList(players) {                                                   // sends the updated player list to all 
     players.forEach(player => {
         player.ws.send(JSON.stringify({ type: 'updateCurrentPlayerList', currentPlayers: players.map(player => player.name) }));
     });
@@ -251,6 +253,8 @@ function assignRoles(players, maxPlayers, numMafia) {                           
             numAssigned++;                                                      // sends the roles for each player to the server side  
         }                                   
     });
+
+    return sortedRoles;
 }
 
 function generateRoles(maxPlayers, numMafia){
@@ -338,4 +342,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions };
+module.exports = { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions, updateCurrentPlayersList, doPhaseChange, assignRoles };
