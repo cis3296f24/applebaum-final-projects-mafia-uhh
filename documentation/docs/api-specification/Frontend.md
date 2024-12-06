@@ -1,5 +1,5 @@
 ---
-title: "FRONT END"
+title: "Frontend"
 ---
 <a name="App"></a>
 
