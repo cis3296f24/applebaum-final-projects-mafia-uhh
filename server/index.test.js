@@ -80,8 +80,8 @@ describe('generateRoles', () => {
         expect(citizenCount).toBe(maxPlayers - numMafia);
     });
     test('should return roles in a randomized order', () => {
-        const maxPlayers = 6;
-        const numMafia = 2;
+        const maxPlayers = 100;
+        const numMafia = 10;
     
         const roles1 = generateRoles(maxPlayers, numMafia);
         const roles2 = generateRoles(maxPlayers, numMafia);

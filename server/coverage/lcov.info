@@ -91,7 +91,7 @@ FNDA:1,kickExcessPlayers
 FNDA:0,assignRoles
 FNDA:0,(anonymous_36)
 FNDA:4,generateRoles
-FNDA:58,(anonymous_38)
+FNDA:1048,(anonymous_38)
 FNDA:0,handleVoting
 FNDA:0,(anonymous_40)
 FNDA:0,(anonymous_41)
@@ -250,7 +250,7 @@ DA:250,0
 DA:257,4
 DA:259,4
 DA:261,4
-DA:263,58
+DA:263,1048
 DA:267,0
 DA:269,0
 DA:270,0
