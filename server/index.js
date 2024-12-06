@@ -39,7 +39,7 @@ wss.on('connection', (ws) => {
 
             console.log('Player Name: ' + playerName);
 
-            const isPlayerNameValid = checkPlayerNameValid(playerName, ws);     // check if player name is valid
+            const isPlayerNameValid = checkPlayerNameValid(playerName, players, ws);     // check if player name is valid
 
             if(!isPlayerNameValid) {                                        // if player name invalid, return immediately so this player does not join
                 return;
@@ -49,7 +49,7 @@ wss.on('connection', (ws) => {
             newPlayer.ws = ws;                                  // assigns the websocket to the player's object
             players.push(newPlayer);                            // adds the player object to the players[]
 
-            updateCurrentPlayersList();                                                                                 // send updated list to all players after someone joins
+            updateCurrentPlayersList(players);                                                                                 // send updated list to all players after someone joins
 
             if (players.length === 1) {
                 ws.send(JSON.stringify({ type: 'host', message: 'You are the host' }));                                 // sends a message (through the websocket) to the first player that they are the host
@@ -61,9 +61,11 @@ wss.on('connection', (ws) => {
                 player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has joined the game!' }));     // sends a message to all other players' frontend that a new player has joined // (accomplished by comparing websockets)
             });
         } else if (data.type === 'start') {
+            console.log("starting with night length [" + data.nightLength + "].");    
+            console.log("starting with day length [" + data.dayLength + "].");    
             console.log(data.maxPlayers);
             //kick excess players here
-            kickExcessPlayers(data.maxPlayers);
+            kickExcessPlayers(players, data.maxPlayers);
             if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
                 assignRoles(players, data.maxPlayers, data.numMafia);                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
@@ -112,24 +114,28 @@ wss.on('connection', (ws) => {
         players.forEach(player => {
             player.ws.send(JSON.stringify({ type: 'message', message: playerName + ' has left the game.' }));           // sends this message to everyone's frontend
         });
-        updateCurrentPlayersList();                                                                                     // send updated list to all players after someone disconnects
+        updateCurrentPlayersList(players);                                                                                     // send updated list to all players after someone disconnects
     });
 });
 
-function checkPlayerNameValid(playerName, ws) {                                                    // function to check valid player names
+
+
+  function checkPlayerNameValid(playerName, players, ws) {                                                    
     const currentPlayers = players.map(player => player.name);
-    if (playerName.length > 24) {                                                         // player name must be less than 25 characters
+    
+    if (playerName.length > 24) {                                                         
         ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name must be less than 25 characters long, try again."}));
         return false;                     
     }
-    if (currentPlayers.includes(playerName)) {                                              // player name must be unique => not in currentPlayers
+    
+    if (currentPlayers.includes(playerName)) {                                              
         ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."}));
         return false;
     }
 
-    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     // if name is valid, send to client to set isJoined(true)
+    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     
     return true;
-  }
+}
 
 
   function beginDayTimer() {
@@ -144,7 +150,6 @@ function checkPlayerNameValid(playerName, ws) {                                 
     timerInterval = setInterval(() => {
         console.log("Day Timer: " + dayTimer);                                                 // runs through a loop (1000 ms/1 sec) doing the following...
         dayTimer--;
-
         if (dayTimer < 0) {                                                               // checks if the timer is at 0
             clearInterval(timerInterval);                                               // stops timer if it hits 0                                                        
         } else {
@@ -178,25 +183,13 @@ function beginNightTimer() {
     }, 1000);
 }
 
-function doPhaseChange() {
-    if (gamePhase === 'DAY') {                                                          // swaps the game phase
-        gamePhase = 'NIGHT';
-    } else {
-        gamePhase = 'DAY';
-    }
-
-    players.forEach(player => { 
-        player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
-    });
-}
-
-function updateCurrentPlayersList() {                                                   // sends the updated player list to all 
+function updateCurrentPlayersList(players) {                                                   // sends the updated player list to all 
     players.forEach(player => {
         player.ws.send(JSON.stringify({ type: 'updateCurrentPlayerList', currentPlayers: players.map(player => player.name) }));
     });
 }
 
-function checkWinConditions() {                                                                                     // checks if a team has won the game
+function checkWinConditions(players) {                                                                                     // checks if a team has won the game
     const mafiaCount = players.filter(player => player.team === "MAFIA" && !player.eliminated).length;              // counts mafia that are still alive
     const citizenCount = players.filter(player => player.team === "CITIZEN" && !player.eliminated).length;          // counts citizens that are still alive
 
@@ -215,7 +208,8 @@ function checkWinConditions() {                                                 
         });
         return true;
     }
-    return false;
+    return false;                                                                                                   // returns false if no one has won
+
 }
 
 function isMafia(role) {                                                                                            // function to check if a role is on the Mafia team, can be updated with added roles.
@@ -225,7 +219,7 @@ function isMafia(role) {                                                        
     return false;
 }
 
-function kickExcessPlayers(maxPlayers) {
+function kickExcessPlayers(players, maxPlayers) {
     for (let i = players.length - 1; i >= maxPlayers; i--) { //iterate thorough the players to be removed starting from array's end
         players[i].ws.close(1000, 'Too many players'); //disconnect the players's websocket
         players.splice(i, 1); //remove the player from the list
@@ -251,6 +245,8 @@ function assignRoles(players, maxPlayers, numMafia) {                           
             numAssigned++;                                                      // sends the roles for each player to the server side  
         }                                   
     });
+
+    return sortedRoles;
 }
 
 function generateRoles(maxPlayers, numMafia){
@@ -329,7 +325,7 @@ function handleVoting(playerName, targetPlayer) {
             const playerToEliminate = alivePlayers.find(player => player.name === eliminatedPlayer); // sets the status of the eliminated player to true
             playerToEliminate.eliminate();
 
-            let over = checkWinConditions(); // check win conditions after player has been eliminated
+            let over = checkWinConditions(players); // check win conditions after player has been eliminated
 
 
             if(!over){
@@ -352,3 +348,5 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions, updateCurrentPlayersList, assignRoles };
