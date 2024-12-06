@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.69% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.69% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -92,54 +92,54 @@
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">class Player {
-<span class="fstat-no" title="function not covered" >    co</span>nstructor(name, role) {
-<span class="cstat-no" title="statement not covered" >      this.name = name; </span>        // stores the player's name
-<span class="cstat-no" title="statement not covered" >      this.role = role; </span>        // stores the player's role
-<span class="cstat-no" title="statement not covered" >      this.eliminated = false; </span> // stores the status of the player (whether alive or dead, boolean)
-<span class="cstat-no" title="statement not covered" >      this.hasVoted = false; </span>   // stores whether the player has voted or not (boolean)
-<span class="cstat-no" title="statement not covered" >      this.targetVote = null; </span>  // stores the target vote of the player (default set to noone)
-<span class="cstat-no" title="statement not covered" >      this.ability = null; </span>     // stores the role's ability tag [can be used in the future to determine nighttime phase actions]
-<span class="cstat-no" title="statement not covered" >      this.team = null;</span>
+<span class="cline-any cline-yes">2x</span></td><td class="text"><pre class="prettyprint lang-js">class Player {
+    constructor(name, role) {
+      this.name = name;         // stores the player's name
+      this.role = role;         // stores the player's role
+      this.eliminated = false;  // stores the status of the player (whether alive or dead, boolean)
+      this.hasVoted = false;    // stores whether the player has voted or not (boolean)
+      this.targetVote = null;   // stores the target vote of the player (default set to noone)
+      this.ability = null;      // stores the role's ability tag [can be used in the future to determine nighttime phase actions]
+      this.team = null;
     }
   
-<span class="fstat-no" title="function not covered" >    vo</span>teFor(player) {
-<span class="cstat-no" title="statement not covered" >      this.hasVoted = true; </span>    // player has voted
-<span class="cstat-no" title="statement not covered" >      this.targetVote = player; </span>// target vote is the player specified inside voteFor()
+    voteFor(player) {
+      this.hasVoted = true;     // player has voted
+      this.targetVote = player; // target vote is the player specified inside voteFor()
     }
   
-<span class="fstat-no" title="function not covered" >    re</span>setVote() {
-<span class="cstat-no" title="statement not covered" >      this.hasVoted = false; </span>   // player's vote is reset
-<span class="cstat-no" title="statement not covered" >      this.targetVote = null; </span>  // target vote is set to noone
+    resetVote() {
+      this.hasVoted = false;    // player's vote is reset
+      this.targetVote = null;   // target vote is set to noone
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    el</span>iminate() {
-<span class="cstat-no" title="statement not covered" >        this.eliminated = true; </span>// player's status is changed to eliminated
+    eliminate() {
+        this.eliminated = true; // player's status is changed to eliminated
     }
 &nbsp;
   }
@@ -151,7 +151,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-06T01:47:40.581Z
+                at 2024-12-06T02:54:11.490Z
             </div>
         <script src="prettify.js"></script>
         <script>
