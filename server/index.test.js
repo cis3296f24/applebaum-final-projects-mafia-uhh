@@ -1,5 +1,5 @@
 // Import the functions
-const { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions, updateCurrentPlayersList, doPhaseChange, assignRoles } = require('./index');
+const { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions, updateCurrentPlayersList, assignRoles } = require('./index');
 
 
 // Mock players array
@@ -212,39 +212,6 @@ describe('updateCurrentPlayersList', () => {
   });
 })
 
-describe('doPhaseChange', () => {
-  let ws;
-
-  test('should send proper phase message and NIGHT to each player', () => {
-    let gamePhase = 'DAY';
-
-    const player1 = { name: 'Alice', ws: { send: jest.fn() } };
-    const player2 = { name: 'Bob', ws: { send: jest.fn() } };
-    
-    const players = [player1, player2];
-
-    gamePhase = doPhaseChange(players, gamePhase);
-
-    expect(gamePhase).toBe('NIGHT');
-    expect(player1.ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'phase', phase: 'NIGHT' }));
-    expect(player2.ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'phase', phase: 'NIGHT' }));
-  });
-
-  test('should send proper phase message and DAY to each player', () => {
-    let gamePhase = 'NIGHT';
-
-    const player1 = { name: 'Alice', ws: { send: jest.fn() } };
-    const player2 = { name: 'Bob', ws: { send: jest.fn() } };
-    
-    const players = [player1, player2];
-
-    gamePhase = doPhaseChange(players, gamePhase);
-
-    expect(gamePhase).toBe('DAY');
-    expect(player1.ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'phase', phase: 'DAY' }));
-    expect(player2.ws.send).toHaveBeenCalledWith(JSON.stringify({ type: 'phase', phase: 'DAY' }));
-  });
-})
 
 describe('assignRoles', () => {
   let ws;
