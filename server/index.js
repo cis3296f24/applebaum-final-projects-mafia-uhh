@@ -183,20 +183,6 @@ function beginNightTimer() {
     }, 1000);
 }
 
-function doPhaseChange(players, gamePhase) {
-    if (gamePhase === 'DAY') {                                                          // swaps the game phase
-        gamePhase = 'NIGHT';
-    } else {
-        gamePhase = 'DAY';
-    }
-
-    players.forEach(player => { 
-        player.ws.send(JSON.stringify({ type: 'phase', phase: gamePhase }));            // sends out the current timer number to all users' frontend
-    });
-
-    return gamePhase;
-}
-
 function updateCurrentPlayersList(players) {                                                   // sends the updated player list to all 
     players.forEach(player => {
         player.ws.send(JSON.stringify({ type: 'updateCurrentPlayerList', currentPlayers: players.map(player => player.name) }));
@@ -363,4 +349,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions, updateCurrentPlayersList, doPhaseChange, assignRoles };
+module.exports = { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions, updateCurrentPlayersList, assignRoles };
