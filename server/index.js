@@ -39,7 +39,7 @@ wss.on('connection', (ws) => {
 
             console.log('Player Name: ' + playerName);
 
-            const isPlayerNameValid = checkPlayerNameValid(playerName, ws);     // check if player name is valid
+            const isPlayerNameValid = checkPlayerNameValid(playerName, players, ws);     // check if player name is valid
 
             if(!isPlayerNameValid) {                                        // if player name invalid, return immediately so this player does not join
                 return;
@@ -114,20 +114,24 @@ wss.on('connection', (ws) => {
     });
 });
 
-function checkPlayerNameValid(playerName, ws) {                                                    // function to check valid player names
+
+
+  function checkPlayerNameValid(playerName, players, ws) {                                                    
     const currentPlayers = players.map(player => player.name);
-    if (playerName.length > 24) {                                                         // player name must be less than 25 characters
+    
+    if (playerName.length > 24) {                                                         
         ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name must be less than 25 characters long, try again."}));
         return false;                     
     }
-    if (currentPlayers.includes(playerName)) {                                              // player name must be unique => not in currentPlayers
+    
+    if (currentPlayers.includes(playerName)) {                                              
         ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."}));
         return false;
     }
 
-    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     // if name is valid, send to client to set isJoined(true)
+    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     
     return true;
-  }
+}
 
 
   function beginDayTimer() {
@@ -333,4 +337,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { checkPlayerNameValid, generateRoles, isMafia };
+module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid };

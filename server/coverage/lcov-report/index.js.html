@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">16.66% </span>
+                <span class="strong">18.09% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>35/210</span>
+                <span class='fraction'>38/210</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">8.75% </span>
+                <span class="strong">10% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>7/80</span>
+                <span class='fraction'>8/80</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.84% </span>
+                <span class="strong">9.8% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/51</span>
+                <span class='fraction'>5/51</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">17.43% </span>
+                <span class="strong">18.46% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>34/195</span>
+                <span class='fraction'>36/195</span>
             </div>
         
             
@@ -398,7 +398,11 @@
 <a name='L333'></a><a href='#L333'>333</a>
 <a name='L334'></a><a href='#L334'>334</a>
 <a name='L335'></a><a href='#L335'>335</a>
-<a name='L336'></a><a href='#L336'>336</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L336'></a><a href='#L336'>336</a>
+<a name='L337'></a><a href='#L337'>337</a>
+<a name='L338'></a><a href='#L338'>338</a>
+<a name='L339'></a><a href='#L339'>339</a>
+<a name='L340'></a><a href='#L340'>340</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -513,16 +517,20 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -656,7 +664,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">55x</span>
+<span class="cline-any cline-yes">48x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -774,7 +782,7 @@ wss.on('connection', <span class="fstat-no" title="function not covered" >(w</sp
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            console.log('Player Name: ' + playerName);</span>
 &nbsp;
-            const isPlayerNameValid = <span class="cstat-no" title="statement not covered" >checkPlayerNameValid(playerName, ws);</span>     // check if player name is valid
+            const isPlayerNameValid = <span class="cstat-no" title="statement not covered" >checkPlayerNameValid(playerName, players, ws);</span>     // check if player name is valid
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            if(!isPlayerNameValid) {                                        // if player name invalid, return immediately so this player does not join</span>
 <span class="cstat-no" title="statement not covered" >                return;</span>
@@ -849,20 +857,24 @@ wss.on('connection', <span class="fstat-no" title="function not covered" >(w</sp
     });
 });
 &nbsp;
-function checkPlayerNameValid(playerName, ws) {                                                    // function to check valid player names
-    const currentPlayers = players.map(<span class="fstat-no" title="function not covered" >pl</span>ayer =&gt; <span class="cstat-no" title="statement not covered" >player.name)</span>;
-    if (playerName.length &gt; 24) {                                                         // player name must be less than 25 characters
+&nbsp;
+&nbsp;
+  function checkPlayerNameValid(playerName, players, ws) {                                                    
+    const currentPlayers = players.map(player =&gt; player.name);
+    
+    if (playerName.length &gt; 24) {                                                         
         ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name must be less than 25 characters long, try again."}));
         return false;                     
     }
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (currentPlayers.includes(playerName)) {                                              // player name must be unique =&gt; not in currentPlayers
-<span class="cstat-no" title="statement not covered" >        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."}));</span>
-<span class="cstat-no" title="statement not covered" >        return false;</span>
+    
+    if (currentPlayers.includes(playerName)) {                                              
+        ws.send(JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."}));
+        return false;
     }
 &nbsp;
-    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     // if name is valid, send to client to set isJoined(true)
+    ws.send(JSON.stringify({type: 'validPlayerName'}));                                     
     return true;
-  }
+}
 &nbsp;
 &nbsp;
   function <span class="fstat-no" title="function not covered" >beginDayTimer(</span>) {
@@ -1068,14 +1080,14 @@ server.listen(PORT, <span class="fstat-no" title="function not covered" >()</spa
 <span class="cstat-no" title="statement not covered" >    console.log(`Server is running on http://localhost:${PORT}`);</span>
 });
 &nbsp;
-module.exports = { checkPlayerNameValid, generateRoles, isMafia };</pre></td></tr></table></pre>
+module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid };</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-05T20:47:01.664Z
+                at 2024-12-06T01:09:48.432Z
             </div>
         <script src="prettify.js"></script>
         <script>

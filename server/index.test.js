@@ -22,7 +22,7 @@ describe('checkPlayerNameValid', () => {
   test('should reject names longer than 24 characters', () => {
     const longName = 'aaaaaaaaaaaaaaaaaaaaaaaaa';
 
-    const result = checkPlayerNameValid(longName, ws, players);
+    const result = checkPlayerNameValid(longName, players, ws);
 
     expect(result).toBe(false);
     expect(ws.send).toHaveBeenCalledWith(
@@ -30,10 +30,22 @@ describe('checkPlayerNameValid', () => {
     );
   });
 
+  test('should reject duplicate names', () => {
+    const duplicateName = 'Alice';
+
+    const result = checkPlayerNameValid(duplicateName, players, ws);
+
+    expect(result).toBe(false);
+    expect(ws.send).toHaveBeenCalledWith(
+      JSON.stringify({type: 'invalidPlayerName', message: "Name already taken, try again."})
+    );
+
+  });
+
   test('should accept valid, unique names', () => {
     const validName = 'Charlie'; // New name
 
-    const result = checkPlayerNameValid(validName, ws, players);
+    const result = checkPlayerNameValid(validName, players, ws);
 
     expect(result).toBe(true);
     expect(ws.send).toHaveBeenCalledWith(
