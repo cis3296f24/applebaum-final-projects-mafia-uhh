@@ -1,6 +1,5 @@
 // Import the functions
-const { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers } = require('./index');
-
+const { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions } = require('./index');
 
 
 // Mock players array
@@ -143,4 +142,49 @@ describe('kickExcessPlayers', () => {
 
   })
 
+})
+
+describe('checkWinConditions', () => {
+  let ws;
+
+  
+  test('should have Citizens win with citizens receiving win messages and mafia receiving lose message', () => {
+    const player1 = { team: 'CITIZEN', eliminated: false, ws: { send: jest.fn() } };
+    const player2 = { team: 'CITIZEN', eliminated: false, ws: { send: jest.fn() } };
+    const player3 = { team: 'MAFIA', eliminated: true, ws: { send: jest.fn() } };
+
+    const players = [player1, player2, player3];
+
+    const gameOver = checkWinConditions(players);
+
+    expect(player1.ws.send).toHaveBeenCalledWith(expect.stringContaining('Game Over: Citizens win! You win!'));
+    expect(player2.ws.send).toHaveBeenCalledWith(expect.stringContaining('Game Over: Citizens win! You win!'));
+    expect(player3.ws.send).toHaveBeenCalledWith(expect.stringContaining('Game Over: Citizens win! You lose.'));
+  })
+
+  test('should have Mafia win with citizens receiving lose messages and mafia receiving win message', () => {
+    const player1 = { team: 'CITIZEN', eliminated: true, ws: { send: jest.fn() } };
+    const player2 = { team: 'CITIZEN', eliminated: false, ws: { send: jest.fn() } };
+    const player3 = { team: 'MAFIA', eliminated: false, ws: { send: jest.fn() } };
+
+    const players = [player1, player2, player3];
+
+    const gameOver = checkWinConditions(players);
+
+    expect(player1.ws.send).toHaveBeenCalledWith(expect.stringContaining('Game Over: Mafia win! You lose.'));
+    expect(player2.ws.send).toHaveBeenCalledWith(expect.stringContaining('Game Over: Mafia win! You lose.'));
+    expect(player3.ws.send).toHaveBeenCalledWith(expect.stringContaining('Game Over: Mafia win! You win!'));
+  })
+
+  test('should return false because no one has won', () => {
+    const player1 = { team: 'CITIZEN', eliminated: false, ws: { send: jest.fn() } };
+    const player2 = { team: 'CITIZEN', eliminated: false, ws: { send: jest.fn() } };
+    const player3 = { team: 'MAFIA', eliminated: false, ws: { send: jest.fn() } };
+
+    const players = [player1, player2, player3];
+
+    const gameOver = checkWinConditions(players);
+
+    expect(gameOver).toBe(false);
+  })
 })

@@ -41,8 +41,8 @@ describe('Player Class', () => {
     });
 
     test('should handle multiple players correctly', () => {
-        const player1 = new Player('Alice', 'Healer');
-        const player2 = new Player('Bob', 'Cop');
+        const player1 = new Player('Alice', 'Citizen');
+        const player2 = new Player('Bob', 'Citizen');
 
         player1.voteFor(player2);
 

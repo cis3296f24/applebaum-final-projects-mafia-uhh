@@ -200,7 +200,7 @@ function updateCurrentPlayersList() {                                           
     });
 }
 
-function checkWinConditions() {                                                                                     // checks if a team has won the game
+function checkWinConditions(players) {                                                                                     // checks if a team has won the game
     const mafiaCount = players.filter(player => player.team === "MAFIA" && !player.eliminated).length;              // counts mafia that are still alive
     const citizenCount = players.filter(player => player.team === "CITIZEN" && !player.eliminated).length;          // counts citizens that are still alive
 
@@ -215,6 +215,7 @@ function checkWinConditions() {                                                 
             player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message }));     // sends game over message to front end
         });
     }
+    return false;                                                                                                   // returns false if no one has won
 }
 
 function isMafia(role) {                                                                                            // function to check if a role is on the Mafia team, can be updated with added roles.
@@ -323,7 +324,7 @@ function handleVoting(playerName, targetPlayer) {
                 player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"}));      // sends the eliminated player tag to everyone's front end with the username
             });
 
-            checkWinConditions();                                                               // check win conditions after player has been eliminated
+            checkWinConditions(players);                                                               // check win conditions after player has been eliminated
          } else {
             console.error('[Error] No valid player eliminated.');
         }
@@ -337,4 +338,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid, kickExcessPlayers };
+module.exports = { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions };

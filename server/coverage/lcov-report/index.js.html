@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20% </span>
+                <span class="strong">26.06% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>42/210</span>
+                <span class='fraction'>55/211</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">10% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/80</span>
+                <span class='fraction'>20/80</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">11.76% </span>
+                <span class="strong">21.56% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/51</span>
+                <span class='fraction'>11/51</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20% </span>
+                <span class="strong">25.51% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>39/195</span>
+                <span class='fraction'>50/196</span>
             </div>
         
             
@@ -402,7 +402,8 @@
 <a name='L337'></a><a href='#L337'>337</a>
 <a name='L338'></a><a href='#L338'>338</a>
 <a name='L339'></a><a href='#L339'>339</a>
-<a name='L340'></a><a href='#L340'>340</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L340'></a><a href='#L340'>340</a>
+<a name='L341'></a><a href='#L341'>341</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -605,20 +606,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -664,7 +666,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1048x</span>
+<span class="cline-any cline-yes">1034x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -943,21 +945,22 @@ function <span class="fstat-no" title="function not covered" >updateCurrentPlaye
     });
 }
 &nbsp;
-function <span class="fstat-no" title="function not covered" >checkWinConditions(</span>) {                                                                                     // checks if a team has won the game
-    const mafiaCount = <span class="cstat-no" title="statement not covered" >players.filter(<span class="fstat-no" title="function not covered" >pl</span>ayer =&gt; <span class="cstat-no" title="statement not covered" >player.team === "MAFIA" &amp;&amp; !player.eliminated)</span>.length;</span>              // counts mafia that are still alive
-    const citizenCount = <span class="cstat-no" title="statement not covered" >players.filter(<span class="fstat-no" title="function not covered" >pl</span>ayer =&gt; <span class="cstat-no" title="statement not covered" >player.team === "CITIZEN" &amp;&amp; !player.eliminated)</span>.length;</span>          // counts citizens that are still alive
+function checkWinConditions(players) {                                                                                     // checks if a team has won the game
+    const mafiaCount = players.filter(player =&gt; player.team === "MAFIA" &amp;&amp; !player.eliminated).length;              // counts mafia that are still alive
+    const citizenCount = players.filter(player =&gt; player.team === "CITIZEN" &amp;&amp; !player.eliminated).length;          // counts citizens that are still alive
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win</span>
-<span class="cstat-no" title="statement not covered" >        players.forEach(<span class="fstat-no" title="function not covered" >pl</span>ayer =&gt; {</span>
-            const message = <span class="cstat-no" title="statement not covered" >player.team === "CITIZEN" ? "You win!" : "You lose.";</span>                                   // sets a message for who wins and loses, different depending on your team
-<span class="cstat-no" title="statement not covered" >            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message })); </span> // sends game over message to front end
+    if (mafiaCount === 0) {                                                                                         // if there are no mafia left, citizens win
+        players.forEach(player =&gt; {
+            const message = player.team === "CITIZEN" ? "You win!" : "You lose.";                                   // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Citizens win! ' + message }));  // sends game over message to front end
         });
-    } else <span class="cstat-no" title="statement not covered" >if (mafiaCount &gt;= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins</span>
-<span class="cstat-no" title="statement not covered" >        players.forEach(<span class="fstat-no" title="function not covered" >pl</span>ayer =&gt; {</span>
-            const message = <span class="cstat-no" title="statement not covered" >player.team === "MAFIA" ? "You win!" : "You lose.";</span>                                     // sets a message for who wins and loses, different depending on your team
-<span class="cstat-no" title="statement not covered" >            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message })); </span>    // sends game over message to front end
+    } else if (mafiaCount &gt;= citizenCount ) {                                                                       // if mafia equal or outnumber citizens, mafia wins
+        players.forEach(player =&gt; {
+            const message = player.team === "MAFIA" ? "You win!" : "You lose.";                                     // sets a message for who wins and loses, different depending on your team
+            player.ws.send(JSON.stringify({ type: 'gameOver', message: 'Game Over: Mafia win! ' + message }));     // sends game over message to front end
         });
     }
+    return false;                                                                                                   // returns false if no one has won
 }
 &nbsp;
 function isMafia(role) {                                                                                            // function to check if a role is on the Mafia team, can be updated with added roles.
@@ -1066,7 +1069,7 @@ function <span class="fstat-no" title="function not covered" >handleVoting(</spa
 <span class="cstat-no" title="statement not covered" >                player.ws.send(JSON.stringify({ type: 'voteResults', eliminatedPlayer, message:  eliminatedPlayer + ' has been eliminated. They were a ' + eliminatedTeam + "!"})); </span>     // sends the eliminated player tag to everyone's front end with the username
             });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >            checkWinConditions(); </span>                                                              // check win conditions after player has been eliminated
+<span class="cstat-no" title="statement not covered" >            checkWinConditions(players); </span>                                                              // check win conditions after player has been eliminated
          } else {
 <span class="cstat-no" title="statement not covered" >            console.error('[Error] No valid player eliminated.');</span>
         }
@@ -1080,14 +1083,14 @@ server.listen(PORT, <span class="fstat-no" title="function not covered" >()</spa
 <span class="cstat-no" title="statement not covered" >    console.log(`Server is running on http://localhost:${PORT}`);</span>
 });
 &nbsp;
-module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid, kickExcessPlayers };</pre></td></tr></table></pre>
+module.exports = { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers, checkWinConditions };</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-06T03:09:15.940Z
+                at 2024-12-06T03:48:49.629Z
             </div>
         <script src="prettify.js"></script>
         <script>
