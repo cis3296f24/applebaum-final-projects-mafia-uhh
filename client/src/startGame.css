@@ -325,3 +325,51 @@
   color: #555;
 }
 
+.voting-container {
+  position: relative;
+  align-self: center;
+  width: 300px;
+  height: 200px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.voting-header {
+  align-self: center;
+  padding: 5px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.voting-players-container {
+  flex-grow: 1;
+  overflow-y: auto; /* Make the player list scrollable */
+  margin-bottom: 10px;
+}
+
+.voting-players-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.voting-player-name {
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.submit-btn {
+  width: fit-content;
+  border: none;
+  align-self: center;
+  background: black;
+  color: red;
+  padding: 10px 20px;
+  font-size: 14px;
+}

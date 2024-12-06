@@ -133,7 +133,7 @@ function Game() {
                       <div className="container-login100">
                           <div className="wrap-login100">
                               <div className = "host-header">
-                                  {isHost && <h3>You are the Host</h3>}
+                                  {isHost && "You are the Host"}
                               </div>
 
                               {invalidStartMessage && (
