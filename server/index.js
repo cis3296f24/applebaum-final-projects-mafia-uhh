@@ -65,7 +65,7 @@ wss.on('connection', (ws) => {
             console.log("starting with day length [" + data.dayLength + "].");    
             console.log(data.maxPlayers);
             //kick excess players here
-            kickExcessPlayers(data.maxPlayers);
+            kickExcessPlayers(players, data.maxPlayers);
             if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host
                 assignRoles(players, data.maxPlayers, data.numMafia);                                                   // runs the assignRoles() function using the # of people in the players[]
                 players.forEach(player => {
@@ -224,7 +224,7 @@ function isMafia(role) {                                                        
     return false;
 }
 
-function kickExcessPlayers(maxPlayers) {
+function kickExcessPlayers(players, maxPlayers) {
     for (let i = players.length - 1; i >= maxPlayers; i--) { //iterate thorough the players to be removed starting from array's end
         players[i].ws.close(1000, 'Too many players'); //disconnect the players's websocket
         players.splice(i, 1); //remove the player from the list
@@ -337,4 +337,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid };
+module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid, kickExcessPlayers };

@@ -1,5 +1,5 @@
 // Import the functions
-const { checkPlayerNameValid, generateRoles, isMafia } = require('./index');
+const { checkPlayerNameValid, generateRoles, isMafia, kickExcessPlayers } = require('./index');
 
 
 
@@ -109,3 +109,38 @@ describe('isMafia', () => {
       expect(isMafia("Citizen")).toBe(false);
   });
 });
+
+describe('kickExcessPlayers', () => {
+  let ws;
+
+  
+  test('should kick players if there are more than maxPlayers', () => {
+    const playersKick = [
+      { name: 'Alice', ws: { close: jest.fn() } },
+      { name: 'Bob', ws: { close: jest.fn() } },
+      { name: 'Patrick', ws: { close: jest.fn() } },
+      { name: 'Spongebob', ws: { close: jest.fn() } },
+    ];
+
+    const maxPlayers = 3;
+
+    const previousLength = playersKick.length;
+    // Log initial state to debug
+    console.log('Before function call:', playersKick.map(player => player.name));
+
+    // Call the function
+    kickExcessPlayers(playersKick, maxPlayers);
+    
+    // Log final state to debug
+    console.log('After function call:', playersKick.map(player => player.name));
+    expect(playersKick.length).toBe(maxPlayers);
+    expect(playersKick.some(player => player.name === 'Spongebob')).toBe(false); // Last player removed
+    
+    // Ensure only one player was kicked
+    expect(playersKick[0].ws.close).not.toHaveBeenCalled(); // No action on first player
+    expect(playersKick[1].ws.close).not.toHaveBeenCalled(); // No action on second player
+
+
+  })
+
+})

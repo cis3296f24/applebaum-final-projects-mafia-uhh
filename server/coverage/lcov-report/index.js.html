@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">18.09% </span>
+                <span class="strong">20% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>38/210</span>
+                <span class='fraction'>42/210</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">9.8% </span>
+                <span class="strong">11.76% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/51</span>
+                <span class='fraction'>6/51</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">18.46% </span>
+                <span class="strong">20% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>36/195</span>
+                <span class='fraction'>39/195</span>
             </div>
         
             
@@ -629,9 +629,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -664,7 +664,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-yes">56x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -808,7 +808,7 @@ wss.on('connection', <span class="fstat-no" title="function not covered" >(w</sp
 <span class="cstat-no" title="statement not covered" >            console.log("starting with day length [" + data.dayLength + "].");    </span>
 <span class="cstat-no" title="statement not covered" >            console.log(data.maxPlayers);</span>
             //kick excess players here
-<span class="cstat-no" title="statement not covered" >            kickExcessPlayers(data.maxPlayers);</span>
+<span class="cstat-no" title="statement not covered" >            kickExcessPlayers(players, data.maxPlayers);</span>
 <span class="cstat-no" title="statement not covered" >            if (players[0].ws === ws) {                                                                                 // checks that the player who clicked the start button is the host</span>
 <span class="cstat-no" title="statement not covered" >                assignRoles(players, data.maxPlayers, data.numMafia); </span>                                                  // runs the assignRoles() function using the # of people in the players[]
 <span class="cstat-no" title="statement not covered" >                players.forEach(<span class="fstat-no" title="function not covered" >pl</span>ayer =&gt; {</span>
@@ -967,10 +967,10 @@ function isMafia(role) {                                                        
     return false;
 }
 &nbsp;
-function <span class="fstat-no" title="function not covered" >kickExcessPlayers(</span>maxPlayers) {
-<span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >players.length - 1;</span> i &gt;= maxPlayers; i--) { //iterate thorough the players to be removed starting from array's end</span>
-<span class="cstat-no" title="statement not covered" >        players[i].ws.close(1000, 'Too many players'); </span>//disconnect the players's websocket
-<span class="cstat-no" title="statement not covered" >        players.splice(i, 1); </span>//remove the player from the list
+function kickExcessPlayers(players, maxPlayers) {
+    for (let i = players.length - 1; i &gt;= maxPlayers; i--) { //iterate thorough the players to be removed starting from array's end
+        players[i].ws.close(1000, 'Too many players'); //disconnect the players's websocket
+        players.splice(i, 1); //remove the player from the list
     }
 }
 &nbsp;
@@ -1080,14 +1080,14 @@ server.listen(PORT, <span class="fstat-no" title="function not covered" >()</spa
 <span class="cstat-no" title="statement not covered" >    console.log(`Server is running on http://localhost:${PORT}`);</span>
 });
 &nbsp;
-module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid };</pre></td></tr></table></pre>
+module.exports = { checkPlayerNameValid, generateRoles, isMafia , checkPlayerNameValid, kickExcessPlayers };</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-06T01:09:48.432Z
+                at 2024-12-06T01:47:40.581Z
             </div>
         <script src="prettify.js"></script>
         <script>

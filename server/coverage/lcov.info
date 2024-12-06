@@ -52,7 +52,7 @@ FN:322,(anonymous_48)
 FN:331,(anonymous_49)
 FN:336,(anonymous_50)
 FNF:51
-FNH:5
+FNH:6
 FNDA:0,(anonymous_0)
 FNDA:0,(anonymous_1)
 FNDA:0,(anonymous_2)
@@ -87,11 +87,11 @@ FNDA:0,(anonymous_30)
 FNDA:0,(anonymous_31)
 FNDA:0,(anonymous_32)
 FNDA:2,isMafia
-FNDA:0,kickExcessPlayers
+FNDA:1,kickExcessPlayers
 FNDA:0,assignRoles
 FNDA:0,(anonymous_36)
 FNDA:4,generateRoles
-FNDA:48,(anonymous_38)
+FNDA:56,(anonymous_38)
 FNDA:0,handleVoting
 FNDA:0,(anonymous_40)
 FNDA:0,(anonymous_41)
@@ -233,9 +233,9 @@ DA:215,0
 DA:221,2
 DA:222,1
 DA:224,1
-DA:228,0
-DA:229,0
-DA:230,0
+DA:228,1
+DA:229,1
+DA:230,1
 DA:236,0
 DA:238,0
 DA:240,0
@@ -250,7 +250,7 @@ DA:250,0
 DA:257,4
 DA:259,4
 DA:261,4
-DA:263,48
+DA:263,56
 DA:267,0
 DA:269,0
 DA:270,0
@@ -300,7 +300,7 @@ DA:336,1
 DA:337,0
 DA:340,1
 LF:195
-LH:36
+LH:39
 BRDA:37,0,0,0
 BRDA:37,0,1,0
 BRDA:44,1,0,0
