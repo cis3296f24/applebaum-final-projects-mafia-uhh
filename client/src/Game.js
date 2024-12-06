@@ -20,6 +20,7 @@ function Game() {
   const [dayLength, setDayLength] = useState(13);       // uses state to change and store dayLength (default is 13)
   const [invalidPlayerNameMessage, setInvalidPlayerNameMessage] = useState(''); // uses state to store messages for invalid player names
   const [disconnectMessage, setDisconnectMessage] = useState(null); // State for connection status message
+  const [invalidStartMessage, setInvalidStartMessage] = useState(null); //State for invalid start message (wrong # of players)
   
 
   useEffect(() => {                                                                       // listens for messages from the WebSocket
@@ -97,9 +98,12 @@ function Game() {
   };
     
   const goToStartGame = () => {
-      if (numMafia < maxPlayers){
-          startGame();
-      }
+    //console.log("STARTGAME PARAMETERS: " + currentPlayers.length + "].");
+    if (numMafia < maxPlayers && maxPlayers == currentPlayers.length){
+        startGame();
+    } else {
+        setInvalidStartMessage("Incorrect number of players!");
+    }
   };
 
   return (
@@ -117,6 +121,7 @@ function Game() {
                               value={playerName}
                               onChange={(e) => setPlayerName(e.target.value)}
                           />
+                          {invalidPlayerNameMessage && <p className="invalidPlayerNameMessage">{invalidPlayerNameMessage}</p>}
                           <div className="glow">
                               <button className="lgn-btn" onClick={handleJoinGame}>
                                   Join Game
@@ -133,12 +138,12 @@ function Game() {
                       <div className="container-login100">
                           <div className="wrap-login100">
                               <div className = "host-header">
-                                  {isHost && <h3>You are the Host</h3>}
+                                  {isHost && "You are the Host"}
                               </div>
 
-                              {disconnectMessage && (
+                              {invalidStartMessage && (
                                 <div style={{ color: 'red', fontWeight: 'bold', marginTop: '20px' }}>
-                                    {disconnectMessage}
+                                    {invalidStartMessage}
                                 </div>
                               )}
 
@@ -187,6 +192,11 @@ function Game() {
                         <div className="container-login100">
                             <div className="wrap-login100">
                                 <h3>Host Options</h3>
+                                {disconnectMessage && (
+                                <div style={{ color: 'red', fontWeight: 'bold', marginTop: '20px' }}>
+                                    {disconnectMessage}
+                                </div>
+                                )}
                                 <label htmlFor="name">Enter number of players:</label>
                                 <input
                                     type="text"

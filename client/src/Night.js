@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useWebSocket } from './WebSocketContext';                                // Import the custom hook
 import RoleDisplay from './roleDisplay';
 import { useLocation, useNavigate } from 'react-router-dom';
+import MafiaCall from './Sounds/MafiaVote.mp3'
+import Tick from './Sounds/Tick.mp3'
 import './Night.css';
 
 function Night() {
   const ws = useWebSocket();                                                      // Get the WebSocket instance and connection status
-  const [messages, setMessages] = useState([]);
   const [players, setPlayers] = useState([]);                                     // uses state to store the player list for voting
   const [voting, setVoting] = useState(false);                                    // uses state to determine when voting occurs
   const [votes, setVotes] = useState({});                                         // uses state to store a player's vote
@@ -14,20 +15,17 @@ function Night() {
   const [isEliminatedListVisible, setIsEliminatedListVisible] = useState(false);  // uses state to toggle eliminated players list visibility
   const [alivePlayers, setAlivePlayers] = useState([]);                           // uses state to store a list of alive players
   const [isAliveListVisible, setIsAliveListVisible] = useState(false);            // uses state to toggle alive players list visibility
-  const [eliminationMessage, setEliminationMessage] = useState('');               // state to hold elimination message
   const [timeLeft, setTimeLeft] = useState(10);                                   // Starting timer value
   const [finalVote, setFinalVote] = useState(null);                               // uses state to store the final vote of each user
   const [showHelp, setShowHelp] = useState(false);                                // uses state to toggle the help menu
   const [voted, setVoted] = useState(true);
 
-  const[isNarrating, setNarrating] = useState(false);
 
   const location = useLocation();
   const { role, playerName, isHost, dayLength, nightLength, rolesList } = location.state;               // includes nightLength within the page state 
 
   const navigate = useNavigate();                                                 // Hook for navigation
 
-  const[spoke, setSpoke] = useState(true);
 
   useEffect(() => {                                                               // listens for messages from the WebSocket (and update state)
     if (!ws) {
@@ -35,49 +33,52 @@ function Night() {
       return;
     } else if (ws) {  
       if (!voting) {
-        ws.send(JSON.stringify({ type: 'startVote'}));
+        ws.send(JSON.stringify({ type: 'startVote', gamePhase: 'NIGHT'}));
+        speak(MafiaCall, .1);
       }
       const handleMessage = (event) => {
-        console.log("event!");
         const data = JSON.parse(event.data);
 
         if (data.type === 'startVoting') {
-            console.log("voting!");
-            setVoted(false);
-            setVoting(true);                                                                  // turns on voting
+            setAlivePlayers(data.alivePlayers);
+            const newEliminatedPlayers = players.filter(player => !alivePlayers.includes(player));
+            setEliminatedPlayers(newEliminatedPlayers);
+            setVoting(true);
+            if(alivePlayers.includes(playerName)&& (role !== 'Citizen')){
+              console.log("no vote yet");
+              setVoted(false); 
+            }                                                                 // turns on voting
             ws.send(JSON.stringify({ type: 'beginNightTimer', nightLength: nightLength }));   // sends the nightLength value to the backend and to begin the timer
             setPlayers(data.players);
-            setVotes({});                                                                     // reset vote tally for players
+            setVotes({});                                                                   // reset vote tally for players
         } else if (data.type === 'voteResults') {
             setEliminatedPlayers(prev => [...prev, data.eliminatedPlayer]);                 // adds the eliminated player to the array
-            setAlivePlayers();
-            setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                            
-            setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+            setVoting(false);                                                               // turns off voting (can be useful for next phase implementation)                                                        setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
             setVotes({});                                                                   // reset vote tally for players
-            navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who is eliminated
+            navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT", elimination: true}});           // send players to Eliminated screen to see message of who is eliminated
         } else if (data.type === 'voteTie') {
-            setVoting(false);                                                               // turns off voting
-            setEliminationMessage(data.message);                                            // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
+            setVoting(false);                                                               // turns off voting                                           // sets elimination message *i was having issues with this and navigate, this line may be unnecessary but keep it for consistency
             setVotes({});                                                                   // reset vote tally for players
-            navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT"}});           // send players to Eliminated screen to see message of who tie                        
+            navigate('/Eliminated', {state: { role, playerName, isHost, rolesList, dayLength, nightLength, eliminationMessage: data.message, currentPhase: "NIGHT", eliminaton: false}});           // send players to Eliminated screen to see message of who tie                        
         } else if (data.type === 'dead') {                                                  // if this person receives this dead data type, then they have been eliminated and will be routed to the dead screen
             navigate('/Dead');
         } else if (data.type === 'timer') {
-          if(data.timeLeft === 1){
-            console.log(voted);
+          if(data.timeLeft === 0){
             if(!voted){ //checks if didnt vote then sends empty vote
+              console.log("Null vote");
                 ws.send(JSON.stringify({ type: 'vote', playerName: null}));
             }   
-        }
+        } else if (data.timeLeft > 0){ 
+          speak(Tick, 0.4);
+      }
             setTimeLeft(data.timeLeft);                                                       // sets the local timer based on the server timer
-            console.log("RECEIVED TIMER: " + data.timeLeft);                                  // debugging
         } else if (data.type === 'phase') {
             if (data.phase === 'DAY') {                                                       // looks for the phase tag, and will change or stay on the page based on that
-              setVoting(false);                                                               // turns off voting 
-              navigate('/startGame', { state: { role, playerName, isHost, dayLength, nightLength, rolesList } });   // navigates to the startGame.js page (transfers the values within the state to the next page)                                                          
+              setVoting(false);
+              navigate('/StartGame', { state: {role, playerName, isHost, dayLength, nightLength, rolesList } });                                                               // turns off voting                       
             }
         } else if (data.type === 'gameOver') {                                              // when gameOver data type is received, send player to game over screen
-          navigate('/GameOver', { state: {gameOverMessage: data.message}});
+          navigate('/GameOver', { state: {gameOverMessage: data.message, winner: data.winner}});
         }
       }
       ws.addEventListener('message', handleMessage)
@@ -86,12 +87,11 @@ function Night() {
         ws.removeEventListener('message', handleMessage);
       };
     }
-  }, [ws, navigate, role, playerName, isHost, voting, nightLength]);                        // Re-run the effect if WebSocket instance changes
+  }, [ws, navigate, role, playerName, isHost, voting, nightLength, alivePlayers, dayLength, players, rolesList, voted]);                        // Re-run the effect if WebSocket instance changes
 
   useEffect(() => {
-    const newAlivePlayers = players.filter(player => !eliminatedPlayers.includes(player));
-    setAlivePlayers(newAlivePlayers);
-  }, [players, eliminatedPlayers]);
+    console.log('Updated voted state:', voted);  // This will run whenever `voted` changes
+  }, [voted]);
 
   const voteForPlayer = (playerName) => {
     if (votes[playerName] || eliminatedPlayers.includes(playerName)) return;        // checks to see if a player already voted or dead; prevents a player voting more than once
@@ -107,24 +107,16 @@ function Night() {
     setShowHelp(!showHelp);
   };
 
-  const announceMafiaVote = () => {
-    if(!spoke){
-      console.log("Speaking!");
-      const messageText = "Mafia open your eyes to vote.";
-      const utterance = new SpeechSynthesisUtterance(messageText);
-      utterance.pitch = 1;
-      utterance.rate = 1;
-      utterance.volume = 1;
-  
-      // Start speaking the messages
-      window.speechSynthesis.speak(utterance);
-      setSpoke(true);
-    }
-  };
+  function speak(sound, vol) {
+    var audio = new Audio(sound);
+    audio.volume = vol;  // Set the volume level (0.0 to 1.0)
+    audio.play().catch((error) => {
+      console.error('Audio playback failed:', error);
+    });
+   };
 
   return (
       <div>
-      {!isNarrating && (
         <div className="startGameNight">
           <div className="gameTitle">
             <h2>MafiUhh...</h2>
@@ -170,34 +162,39 @@ function Night() {
           
         {/* Voting Section */}
         {voting && !eliminatedPlayers.includes(playerName) && (role !== 'Citizen') && (
-        <div>
-            <h3>Vote to Eliminate a Player</h3>
-            <div>
-                {/* Player Buttons for voting */}
-                {players.map((player) => (
-                    <div key={player}>
-                        <label>
-                            <input
-                                type="radio"                                  // circle button design for now
-                                name="vote"
-                                value={player}
-                                onChange={() => setFinalVote(player)}         // changes the state of the final vote for the user
-                                disabled={eliminatedPlayers.includes(player)} // eliminated players can't vote
-                            />
-                            {player}
-                        </label>
-                    </div>
-                ))}
-            </div>
-            {/* Submit Vote Button */}
-            <button
-                onClick={() => {
-                    if (finalVote) voteForPlayer(finalVote);                  // submits the player's vote through the voteForPlayer function
-                }}
-                disabled={!finalVote}                                         // button is disabled until a player is selected
-            >
-                Submit Vote
-            </button>
+        <div className="voting-container">
+          <div className="voting-header">
+              Vote to Eliminate a Player
+          </div>
+          <div className="voting-players-container">
+              <div className="voting-player-list">
+                  {/* Buttons for voting */}
+                  {alivePlayers.map((player) => (
+                      <div key={player} className="voting-player-name">
+                          <label>
+                              <input
+                                  type="radio"
+                                  name="vote"
+                                  value={player}
+                                  onChange={() => setFinalVote(player)}
+                                  disabled={eliminatedPlayers.includes(player)} // Prevent voting for eliminated players
+                              />
+                              {player}
+                          </label>
+                      </div>
+                  ))}
+              </div>
+        </div>
+        {/* Submit Vote Button */}
+
+        <button className="submit-btn"
+            onClick={() => {
+                if (finalVote) voteForPlayer(finalVote);
+            }}
+            disabled={!finalVote} // Disable button until a player is selected
+        >
+            Submit Vote
+        </button>
         </div>
         )}
 
@@ -254,27 +251,6 @@ function Night() {
         )}
                   
         </div>
-        )}
-        {isNarrating && (
-            <div className="startGameNight">
-            <div className="gameTitle">
-                <h2>MafiUhh...</h2>
-            </div>
-            {/* Display the elimination messages after voting */}
-            <div>
-            {messages.length > 0 && (
-                <div className="narration">
-                <h3>Game Updates:</h3>
-                <div>{messages.map((msg, index) => <p key={index}>{msg}</p>)}</div>
-                </div>
-            )}
-            </div>
-                                      {/* COMMENTED OUT THE CONTINUE BUTTON FOR NOW */}
-                                      {/*<div className="glow">
-                                            {isHost && <button onClick={phaseChange}>Continue</button>}
-                                        </div>*/}
-            </div>
-        )}
         </div>
   );
 }
