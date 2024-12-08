@@ -11,7 +11,7 @@ export const WebSocketProvider = ({ children }) => {
   const [ws, setWs] = useState(null);  // Track the WebSocket instance in state
   const wsRef = useRef(null);
 
-  const [isLocal, setIsLocal] = useState(true);
+  const [isLocal, setIsLocal] = useState(false);
 
   useEffect(() => {
     // Create WebSocket connection
