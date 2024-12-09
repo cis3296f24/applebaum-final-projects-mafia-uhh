@@ -7,8 +7,8 @@ const roles = [
 ];
 
 const roleDesc = [
-    { name: 'Mafia', description: 'The Mafia’s goal is to eliminate all Citizens.' },
-    { name: 'Citizen', description: 'Citizens must identify the Mafia members and vote them out.' }
+    { name: 'Mafia', description: '[Objective] Eliminate all Citizens by either voting them out during the day or the night. Outnumber or match the number of Citizens to win.' },
+    { name: 'Citizen', description: '[Objective] Identify the Mafia and vote them out during the day. Eliminate all Mafia to win.' }
 ];
 
 module.exports = { roles, roleDesc };

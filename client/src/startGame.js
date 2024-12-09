@@ -144,6 +144,24 @@ function StartGame() {
                   </div>
                 ))}
               </div>
+              <div className="help-modal-header">
+                  <h3>Game Rules</h3>
+              </div>
+              <div className="help-modal-body">
+                  <h4>How to Join & Start:</h4>
+                  <p>A user can enter a name and select the Join Game button. The first user to join is the Host. The Host can change game settings and start the game.</p>
+                  <h4>Phases:</h4>
+                  <p>There are two main phases: Day & Night. Each phase has a timer and a voting period. All alive players can open their eyes and vote during the Day. 
+                      Only alive Mafia players can open their eyes and vote at night. Once the timer ends, the game switches to the next phase. In between the phases there 
+                      is an Elimination screen that reports who has been eliminated. Eliminated players are sent to a Dead screen once eliminated.</p>
+                  <h4>Voting:</h4>
+                  <p>All votes are anonymous. Each alive player has one vote during the daytime voting phase. Only each mafia has one vote during the nighttime voting phase.
+                      The player with the most votes is eliminated at the end of each voting phase. If there is a tie, noone is eliminated. Players can choose to not vote. 
+                      If the majority of players don't vote, then noone is eliminated at the end of the voting phase.</p>
+                  <h4>How to Win:</h4>
+                  <p>Mafia can win (at any point) by outnumbering or equaling the number of Citizens left in the game. Citizens must decrease the number of Mafia players
+                  to zero to win.</p>
+              </div>
             </div>
           </div>
         )}
