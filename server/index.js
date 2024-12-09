@@ -306,7 +306,7 @@ function handleVoting(playerName, targetPlayer) {
                 eliminatedPlayer = votedFor;                                    // sets the eliminated player to the person who received the most votes
                 eliminatedTeam = alivePlayers.find(player => player.name === eliminatedPlayer).team; // looks at alivePlayers for the player being eliminated, set eliminatedTeam to that role.
                 tie = false;
-            } else if(votedFor ==="null" && count > (votedPlayers.length/2)){
+            } else if(votedFor ==="null" && count >= (votedPlayers.length/2)){
                 halfVoted = false;
             } else if (count === maxVotes) {                                    // if max votes are equal, set a tie
                 tie = true;
