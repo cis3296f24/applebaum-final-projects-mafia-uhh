@@ -555,7 +555,7 @@ WebSocketContext --|> React : imports React
         <a href="https://github.com/emholland">
             <img src="https://avatars.githubusercontent.com/u/102695327?v=4" width="100;" alt="ApplebaumIan"/>
             <br />
-            <sub><b>Elisa Holladn</b></sub>
+            <sub><b>Elisa Holland</b></sub>
         </a>
     </td>
     <td align="center">
