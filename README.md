@@ -2,9 +2,9 @@
 <div align="center">
 
 # Mafia Uhh
-[![Report Issue on Jira](https://img.shields.io/badge/Report%20Issues-Jira-0052CC?style=flat&logo=jira-software)](https://temple-cis-projects-in-cs.atlassian.net/jira/software/c/projects/DT/issues)
-[![Deploy Docs](https://github.com/ApplebaumIan/tu-cis-4398-docs-template/actions/workflows/deploy.yml/badge.svg)](https://github.com/ApplebaumIan/tu-cis-4398-docs-template/actions/workflows/deploy.yml)
-[![Documentation Website Link](https://img.shields.io/badge/-Documentation%20Website-brightgreen)](https://applebaumian.github.io/tu-cis-4398-docs-template/)
+[![Report Issue on Jira](https://img.shields.io/badge/Report%20Issues-Jira-0052CC?style=flat&logo=jira-software)](https://temple-cis-projects-in-cs.atlassian.net/browse/MAFIA-28)
+[![Deploy Docs](https://github.com/ApplebaumIan/tu-cis-4398-docs-template/actions/workflows/deploy.yml/badge.svg)](https://github.com/cis3296f24/applebaum-final-projects-mafia-uhh/actions)
+[![Documentation Website Link](https://img.shields.io/badge/-Documentation%20Website-brightgreen)](https://cis3296f24.github.io/applebaum-final-projects-mafia-uhh/)
 
 
 </div>
@@ -236,23 +236,28 @@ sequenceDiagram
 
 This sequence diagram represents a player who is already in the game and can vote. The user is already has a websocket connection. The current state of the game is immediately after game status swapped from startGame.js to Night.js. The diagram demonstates the various communications between the frontend and backend of the game system through a websocket. At first, the voting is not started, but then the game updates to have voting begin (through various communications between backend and frontend to setup the initialization of voting). Following this, the User will be able to select the name of their target vote for elimination by clicking on their button on the frontend client screen of Night.js. The frontend will communicate their choice to the backend who will process it. The backend then sends the reponse to the voting results from all other users to each individual users frontend. The player has the name of the eliminated player displayed on their screen and finally voting and the timer are reset back to their initial states.
 
-## Use Case 4: Player Toggles Help Button 
-```mermaid 
+## Use Case 4: Player Clicks Help Button 
+```mermaid
 sequenceDiagram
-    participant U as User
-    participant G as Game Component
-    participant WS as WebSocket
-    participant S as Server
-    S->>G: Send signal for showHelp to be off
-    S->>G: Send Role Descriptions
-    U->>G: Clicks Help Button
-    G->>G: Toggle `showHelp` State      
-        G->>U: Display Help Box with Role Descriptions
-        G->>G: Hide Help Box
-    G->>U: Show or Hide Help Box
+    actor User
+    participant Index.js
+    participant WebSocket
+    participant Game.js
+
+    Index.js->>WebSocket: Send roles list (ws.send(JSON.stringify({ type: 'rolesList', roleDesc })))
+    WebSocket->>Game.js: Receive roles list (type: 'rolesList', roleDesc)
+    Game.js->>Game.js: Store roles list in state
+
+    User->>Game.js: Clicks "Help" Button (toggleHelp)
+    Game.js->>Game.js: Show HelpPopUp (setShowHelp(true))
+    Game.js->>User: Display help content (role descriptions)
+
+    User->>Game.js: Clicks "X" to close HelpPopUp
+    Game.js->>Game.js: Hide HelpPopUp (setShowHelp(false))
+    Game.js->>User: Close help content (role descriptions)
 ```
 
-This sequence diagram represents a player who is already in the game. The user is already has a websocket connection. The current state of the game is immediately after they have joined the game. The diagram demonstates the various communications between the frontend and backend of the game system through a websocket. Initially, the backend has immediately already sent two signals to the user's frontend: one to toggle the help button to an off state, and another that contains the text data displayed in the help menu. So at first, the help button is not displayed (toggled off), but then the user clicks on the frontend display button which triggers a call to toggle the help button to on. The user's frontend swaps the useState condition for the toggleHelp button and then the help button pop-up is displayed on their screen.
+The process starts when index.js sends the roles list (with role descriptions) to Game.js using a WebSocket. Game.js receives this list and saves it in its state. When the User clicks the "Help" button, Game.js shows the HelpPopUp, which pulls the role descriptions from the saved list to display helpful info to the player. If the User decides they don’t need the help anymore, they can click the "X" button to close the pop-up. This triggers Game.js to hide the pop-up and return the player to the main game screen. It’s a simple back-and-forth between index.js and Game.js, with the User interacting with the help content as needed.
 
 ## Mafia-uhh Class Diagrams
 <br>
