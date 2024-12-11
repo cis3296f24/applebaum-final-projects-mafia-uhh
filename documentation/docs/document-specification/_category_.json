@@ -1,0 +1,8 @@
+{
+  "label": "Document Specification",
+  "position": 7,
+  "link": {
+    "type": "generated-index",
+    "description": "Contains the javadoc information for Frontend and Backend. Class diagram in under System Architecture."
+  }
+}

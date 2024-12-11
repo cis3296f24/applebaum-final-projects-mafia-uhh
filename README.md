@@ -36,28 +36,28 @@ This document proposes a real-time multiplayer game application based on the cla
 
 ## Keywords
 
-[CIS 3296]<br>
-Section 005<br>
-Software Design (Applebaum & Thanh)<br>
-2024 Fall<br>
+[CIS 3296]  
+Section 005  
+Software Design (Applebaum & Thanh)  
+2024 Fall  
 
-Mafia Game (Recreation and Implementation)<br>
+Mafia Game (Recreation and Implementation)  
 
-Javascript<br>
-Node.js<br>
-React<br>
-CSS<br>
-.mp3<br>
-Web-app & Mobile app<br>
-VSCode<br>
-Github<br>
+Javascript  
+Node.js  
+React  
+CSS  
+.mp3  
+Web-app & Mobile app  
+VSCode  
+Github  
 
 ## Required Resources
 
-Github<br>
-VSCode or Preferred IDE<br>
-Wifi-connected device<br>
-Background knowledge on Javascript, CSS, Node.js, and React (ideal)<br>
+Github  
+VSCode or Preferred IDE  
+Wifi-connected device  
+Background knowledge on Javascript, CSS, Node.js, and React (ideal)  
 
 ## Installation
 
@@ -68,8 +68,8 @@ Load up your preferred IDE and Navigate to your preferred directory for the inst
 ```bash
     git clone https://github.com/cis3296f24/applebaum-final-projects-mafia-uhh
 ```
-Download the latest version of Node.js from the official website: "https://nodejs.org/en/download/package-manager". <br>
-- Choose your system and either "Current" version or "LTS" (Long-Term Support) version.<br>
+Download the latest version of Node.js from the official website: "https://nodejs.org/en/download/package-manager".    
+- Choose your system and either "Current" version or "LTS" (Long-Term Support) version.  
 
 Next, run the installation wizard. Also make sure that you install Node.js in a directory above or at your preferred directory from before. Check the version of node and npm with:
 ```bash
@@ -260,7 +260,6 @@ sequenceDiagram
 The process starts when index.js sends the roles list (with role descriptions) to Game.js using a WebSocket. Game.js receives this list and saves it in its state. When the User clicks the "Help" button, Game.js shows the HelpPopUp, which pulls the role descriptions from the saved list to display helpful info to the player. If the User decides they don’t need the help anymore, they can click the "X" button to close the pop-up. This triggers Game.js to hide the pop-up and return the player to the main game screen. It’s a simple back-and-forth between index.js and Game.js, with the User interacting with the help content as needed.
 
 ## Mafia-uhh Class Diagrams
-<br>
 
 ### Backend Class Diagram
 
