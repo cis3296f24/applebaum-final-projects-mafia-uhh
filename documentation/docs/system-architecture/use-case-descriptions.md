@@ -1,8 +1,8 @@
 ---
-sidebar_position: 5
+sidebar_position: 3
 ---
 
-# Use-case descriptions
+# Use Cases
 
 ## Use Case 1: Player Joining The Game
 ```mermaid
@@ -68,6 +68,7 @@ sequenceDiagram
     deactivate Frontend Game.js
 
 ```
+
 This sequence diagram is for the use case of the Host, or the first person to connect to the game, changing options in the host options panel. The host user opens the website and connects to the websocket. The host enters their name and presses join, which causes the frontend to send a join message containing the player name to the backend. Since this is the first user to join, they are made the host. The backend sends a host message to the frontend via the websocket, which then triggers the frontend to display the host UI for the host only. Then the host changes max players to 6 and number of mafia to 2. Once they start the game, a start message is sent via websocket to the backend, where these variables are used to assignRoles() to all players. Using the websocket, the backend sends a role message to the frontend to display the role that each player got.
 
 ## Use Case 3: Player Selecting a Vote
@@ -130,10 +131,8 @@ sequenceDiagram
 
 This sequence diagram represents a player who is already in the game and can vote. The user is already has a websocket connection. The current state of the game is immediately after game status swapped from startGame.js to Night.js. The diagram demonstates the various communications between the frontend and backend of the game system through a websocket. At first, the voting is not started, but then the game updates to have voting begin (through various communications between backend and frontend to setup the initialization of voting). Following this, the User will be able to select the name of their target vote for elimination by clicking on their button on the frontend client screen of Night.js. The frontend will communicate their choice to the backend who will process it. The backend then sends the reponse to the voting results from all other users to each individual users frontend. The player has the name of the eliminated player displayed on their screen and finally voting and the timer are reset back to their initial states.
 
-
 ## Use Case 4: Player Clicks Help Button 
 ```mermaid
-
 sequenceDiagram
     actor User
     participant Index.js
@@ -151,9 +150,6 @@ sequenceDiagram
     User->>Game.js: Clicks "X" to close HelpPopUp
     Game.js->>Game.js: Hide HelpPopUp (setShowHelp(false))
     Game.js->>User: Close help content (role descriptions)
-
-
 ```
 
 The process starts when index.js sends the roles list (with role descriptions) to Game.js using a WebSocket. Game.js receives this list and saves it in its state. When the User clicks the "Help" button, Game.js shows the HelpPopUp, which pulls the role descriptions from the saved list to display helpful info to the player. If the User decides they don’t need the help anymore, they can click the "X" button to close the pop-up. This triggers Game.js to hide the pop-up and return the player to the main game screen. It’s a simple back-and-forth between index.js and Game.js, with the User interacting with the help content as needed.
-
